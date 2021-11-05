@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const User = require('../models/user');
+const { MongoTopologyClosedError } = require('mongoose/node_modules/mongodb');
 const userRoutes = express.Router();
 module.exports = userRoutes;
 
@@ -56,17 +57,27 @@ app.post('/api/login', async (req, res) => {
 
 	if (await bcrypt.compare(password, user.password)) {
 		// the username, password combination is successful
-
+        //want to see if we need to define this
+        console.log("jwt secret: " + process.env.JWT_SECRET);
 		const token = jwt.sign(
 			{
 				id: user._id,
 				username: user.username
 			},
-			JWT_SECRET
+			process.env.JWT_SECRET
 		)
 
 		return res.json({ message: 'login successfully authenticated', data: token })
 	}
 
 	res.json({ message: 'Invalid username/password' })
+})
+
+app.delete('/api/rm-user/:id', async (req, res) => {
+    let myquery = { _id: objectId(req.params.id)};
+    User.deleteOne(myquery, (err,obj) => {
+        if(err) throw err;
+        res.json({message: "1 user successfully deleted"})
+        response.status(obj);
+    })
 })
