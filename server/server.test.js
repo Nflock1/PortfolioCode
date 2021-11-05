@@ -2,20 +2,15 @@ import app from './server'
 const supertest = require('supertest')
 const request = supertest(app) 
 
-test('Check that user is being created', async(done) => {
+test('Check that user is being created', async() => {
     const user = {
         username: "tests",
         password: "testing"
     };
   
     try {
-        const count = await User.count();
-
-        await request(app).post('/api/register').send(service)
-        const newCount = await Service.count()
-        expect(newCount).toBe(count + 1)
-        done()
-
+        const response = await request(app).post('/api/register').send(user)
+        expect(response.statusCode).toBe(200)
     }  catch (err) {
 
         console.log('Error')
