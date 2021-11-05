@@ -20,8 +20,9 @@ app.listen(port, () => {
   //may need to place this in user routes?
 mongoose.connect(dbURL || 'mongodb://localhost:5000/bad-server-connection', {
 	useNewUrlParser: true,
-	useUnifiedTopology: true,
-	useCreateIndex: true
+	useUnifiedTopology: true
 })
   console.log(`Server is running on port: ${port}`);
 });
+
+module.exports = app;
