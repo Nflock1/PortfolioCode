@@ -1,5 +1,6 @@
+import axios from 'axios';
 import React from 'react';
-import {StyleSheet,View,Text, SafeAreaView, ScrollView, TextInput,TouchableOpacity} from 'react-native';
+import {StyleSheet,View,Text, SafeAreaView, ScrollView, TextInput,TouchableOpacity, Button, Alert} from 'react-native';
 
 const STYLES = StyleSheet.create({
 
@@ -33,6 +34,21 @@ const STYLES = StyleSheet.create({
 
 function SignUpScreen({navigation}) {
 
+    const [newUsername, setNewUser] = React.useState(null);
+    const [newPassword, setNewPassword] = React.useState(null);
+
+    const newUser = {
+        newUsername,
+        newPassword
+    };
+
+    axios
+        .post('/api/register', newUser)
+        .then(() => console.log('Created new user!'))
+        .catch(err => {
+            console.log(err)
+        })
+
     return(
 
         <SafeAreaView style= {{paddingHOrizontal: 20, flex: 1, backgroundColor: 'white'}}>
@@ -58,21 +74,42 @@ function SignUpScreen({navigation}) {
                 <View style ={{marginTop: 20}}>
 
                     <View style ={{flexDirection: 'row', marginTop:20}}>
-                        <TextInput placeholder= "New Username" style = {{color: 'lightgrey', paddingLeft: 20, height: 40, borderBottomWidth: 0.5, flex: 1, fontSize: 18}}/>
+                        <TextInput placeholder= "New Username" 
+                        style = {{color: 'lightgrey'
+                        , paddingLeft: 20, 
+                        height: 40, 
+                        borderBottomWidth: 0.5, 
+                        flex: 1, 
+                        fontSize: 18}}
+                        onChangeText = {(val) => setNewUser(val)}/>
                     </View>
 
                     <View style ={{flexDirection: 'row', marginTop:20}}>
-                        <TextInput placeholder= "New Password" style = {{color: 'lightgrey', paddingLeft: 20, height: 40, borderBottomWidth: 0.5, flex: 1, fontSize: 18}}/>
+                        <TextInput placeholder= "New Password" 
+                        style = {{color: 'lightgrey', 
+                        paddingLeft: 20, 
+                        height: 40, 
+                        borderBottomWidth: 0.5, 
+                        flex: 1, 
+                        fontSize: 18}}
+                         secureTextEntry
+                         onChangeText={(val) => setNewPassword(val)}/>
                     </View>
 
                     <View style ={{flexDirection: 'row', marginTop:20}}>
                         <TextInput placeholder= "Re-type New Password" style = {{color: 'lightgrey', paddingLeft: 20, height: 40, borderBottomWidth: 0.5, flex: 1, fontSize: 18}} secureTextEntry/>
                     </View>
 
-                    <View style = {STYLES.buttonSignIn}> 
-                        <Text style= {{color: 'white',fontWeight: "bold", fontSize: 18}}>
-                         Sign Up
-                        </Text>
+                    <View> 
+
+
+                        <Button title="Sign Up"
+                        onPress={() => Alert.alert('To Be Implemented')} />
+                        
+                            {/* <Text style= {{color: 'white',fontWeight: "bold", fontSize: 18}}>
+                            Sign Up
+                            </Text> */}
+                        
                     </View>
 
                     <View style={{marginVertical:20, flexDirection: 'row', justifyContent: 'center',alignItems: 'center'}}>

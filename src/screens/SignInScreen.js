@@ -2,7 +2,8 @@ import React from 'react';
 import {StyleSheet,View,Text, SafeAreaView, ScrollView, TextInput,TouchableOpacity} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-
+import Axios from 'axios';
+import axios from 'axios';
 
 const STYLES = StyleSheet.create({
 
@@ -40,6 +41,17 @@ function SignInScreen({navigation}) {
 
     const [userName, setUserName] = React.useState(null);
     const [userPassword, setPassoword] = React.useState(null);
+    const login = {
+        userName,
+        userPassword
+    };
+
+    axios
+        .post('/api/login', login)
+        .then(() => console.log('Something happened'))
+        .catch(err => {
+            console.log(err)
+        })
 
 
     return(
