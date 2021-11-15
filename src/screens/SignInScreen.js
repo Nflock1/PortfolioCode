@@ -1,7 +1,5 @@
 import React from 'react';
 import {StyleSheet,View,Text, SafeAreaView, ScrollView, TextInput,TouchableOpacity} from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Axios from 'axios';
 import axios from 'axios';
 
@@ -102,10 +100,12 @@ function SignInScreen({navigation}) {
                         onChangeText ={(val) => setPassoword(val)}/>
                     </View>
 
-                    <View style = {STYLES.buttonSignIn}> 
-                        <Text style= {{color: 'white',fontWeight: "bold", fontSize: 18}}>
-                         Sign In
-                        </Text>
+                    <View style = {STYLES.buttonSignIn}>
+                        <TouchableOpacity onPress={() => navigation.navigate('HomeScreen')}>
+                            <Text style= {{color: 'white',fontWeight: "bold", fontSize: 18}}> 
+                                Sign In
+                            </Text>
+                        </TouchableOpacity>
                     </View>
 
                     <View style={{marginVertical:20, flexDirection: 'row', justifyContent: 'center',alignItems: 'center'}}>
@@ -115,10 +115,12 @@ function SignInScreen({navigation}) {
                 </View>
 
 
-                <View style = {STYLES.buttonGuest}> 
+                <View style = {STYLES.buttonGuest}>
+                    <TouchableOpacity onPress={() => navigation.navigate('HomeScreen')}>
                         <Text style= {{color: 'white',fontWeight: "bold", fontSize: 18}}>
                          Enter As Guest
                         </Text>
+                    </TouchableOpacity>
                 </View>
 
                 <View style={{flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'center', marginTop: 40, marginBottom: 20}}>

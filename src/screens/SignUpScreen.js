@@ -104,7 +104,7 @@ function SignUpScreen({navigation}) {
 
 
                         <Button title="Sign Up"
-                        onPress={() => Alert.alert('To Be Implemented')} />
+                        onPress={() => navigation.navigate('HomeScreen')} />
                         
                             {/* <Text style= {{color: 'white',fontWeight: "bold", fontSize: 18}}>
                             Sign Up
@@ -119,10 +119,12 @@ function SignUpScreen({navigation}) {
                 </View>
 
 
-                <View style = {STYLES.buttonGuest}> 
+                <View style = {STYLES.buttonGuest}>
+                    <TouchableOpacity onPress={() => navigation.navigate('HomeScreen')}> 
                         <Text style= {{color: 'white',fontWeight: "bold", fontSize: 18}}>
                          Enter As Guest
                         </Text>
+                    </TouchableOpacity>
                 </View>
 
                 <View style={{flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'center', marginTop: 40, marginBottom: 20}}>
