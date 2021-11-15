@@ -196,8 +196,8 @@ app.get('/api/restroom', async (req, res) => {
 //as a distance field for the range in miles needed
 //no verify because geusts can do this
 app.get('/api/near-RR', async (req, res) =>{
-	long = req.body.longitude + req.body.distance/54.5833333
-	lat = req.body.lattitude + req.body.distance/54.5833333
+	long = req.body.longitude + req.body.distance/(54.5833333*2)
+	lat = req.body.lattitude + req.body.distance/(54.5833333*2)
 	let myquery = {longitude:{$gte: -1*long, $lt: long}, lattitude: {$gte: -1*lat, $lt: lat}}
 	const restroom = Restroom.find(myquery).lean();
 	if(!restroom){
