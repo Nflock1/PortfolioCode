@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const User = require('../models/user');
+const userData = require('../models/userData');
 const { MongoTopologyClosedError } = require('mongoose/node_modules/mongodb');
 const userRoutes = express.Router();
 module.exports = userRoutes;
@@ -74,11 +75,48 @@ app.post('/api/login', async (req, res) => {
 	res.json({ message: 'Invalid username/password' })
 })
 
-app.delete('/api/rm-user/:id', async (req, res) => {
-    let myquery = { _id: objectId(req.params.id)};
-    User.deleteOne(myquery, (err,obj) => {
+function verifyJWT(req, res, next) {
+	const token = req.headers["x-access-token"]
+	
+	if(token) {
+		jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+			if(err) { 
+				console.log(err);
+				return res.json({
+					message: "Failed To Authenticate",
+					isLoggedIn: false
+				})
+			}
+			req.user = {};
+			req.user.id = decoded.id
+			req.user.username = decoded.username
+			next()
+		})
+	} else{
+		res.json({message: "Incorrect Token Given", isLoggedIn: false})
+	}
+}
+
+//removes currently logged in user
+app.delete('/api/rm-user', verifyJWT, async (req, res) => {
+    let myquery = { _id: objectId(req.user.id)};
+    User.deleteOne(myquery, (err, obj) => {
         if(err) throw err;
-        res.json({message: "1 user successfully deleted"})
-        response.status(obj);
+		res.status(obj);
+		UserData.deleteOne(myquery, (error, object) =>{
+			if(error) throw error;
+			res.status(object);
+		})
+        res.json({message: "1 user successfully deleted", isLoggedIn: false})
     })
 })
+
+//gets user data
+app.get('api/userData', verifyJWT, async (req, res) =>{
+	let myquery = { _id: objectId(req.user.id)}
+	const userData = await UserData.findOne(myquery).lean()
+	res.json({message: "user sucessfully retreived", data: userData})
+})
+
+
+
