@@ -81,7 +81,8 @@ function SignUpScreen({navigation}) {
                         borderBottomWidth: 0.5, 
                         flex: 1, 
                         fontSize: 18}}
-                        onChangeText = {(val) => setNewUser(val)}/>
+                        onChangeText = {(val) => setNewUser(val)}
+                        />
                     </View>
 
                     <View style ={{flexDirection: 'row', marginTop:20}}>
