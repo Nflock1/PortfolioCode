@@ -1,0 +1,147 @@
+import axios from 'axios';
+import React from 'react';
+import {StyleSheet,View,Text, SafeAreaView, ScrollView, TextInput,TouchableOpacity, Button, Alert} from 'react-native';
+
+const STYLES = StyleSheet.create({
+
+    buttonSignIn: {
+        backgroundColor: 'dodgerblue',
+        height: 50,
+        marginTop: 50,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 100
+
+    },
+    buttonGuest:{
+
+        backgroundColor: 'black',
+        height: 50,
+        marginTop: 50,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 100
+
+    },
+    line: {
+        height: 1,
+        width: 30,
+        backgroundColor: 'blue'
+
+    }
+
+});
+
+function SignUpScreen({navigation}) {
+
+    const [newUsername, setNewUser] = React.useState(null);
+    const [newPassword, setNewPassword] = React.useState(null);
+
+    const newUser = {
+        newUsername,
+        newPassword
+    };
+
+    axios
+        .post('/api/register', newUser)
+        .then(() => console.log('Created new user!'))
+        .catch(err => {
+            console.log(err)
+        })
+
+    return(
+
+        <SafeAreaView style= {{paddingHOrizontal: 20, flex: 1, backgroundColor: 'white'}}>
+            <ScrollView showsVerticalScrollIndicator={false}>
+
+                <View style={{alignItems: 'center', marginTop: 40}} >
+
+                    <Text style = {{fontWeight: 'bold',alignItems: 'center', fontSize: 35, color: 'dodgerblue'}}>
+                        RateMyRestroom
+                    </Text>
+                  
+                </View> 
+
+                <View style={{marginTop: 70, alignContent: 'center'}}>                 
+                    <Text style={{fontWeight: 'bold', fontSize: 25, color: 'black'}}> 
+                        Welcome New Pooper!
+                    </Text>
+                    <Text style = {{fontWeight: 'bold', fontSize: 19, color: 'lightgrey'}}>
+                        Sign Up To Continue
+                    </Text>
+                </View>
+        
+                <View style ={{marginTop: 20}}>
+
+                    <View style ={{flexDirection: 'row', marginTop:20}}>
+                        <TextInput placeholder= "New Username" 
+                        style = {{color: 'lightgrey'
+                        , paddingLeft: 20, 
+                        height: 40, 
+                        borderBottomWidth: 0.5, 
+                        flex: 1, 
+                        fontSize: 18}}
+                        onChangeText = {(val) => setNewUser(val)}
+                        />
+                    </View>
+
+                    <View style ={{flexDirection: 'row', marginTop:20}}>
+                        <TextInput placeholder= "New Password" 
+                        style = {{color: 'lightgrey', 
+                        paddingLeft: 20, 
+                        height: 40, 
+                        borderBottomWidth: 0.5, 
+                        flex: 1, 
+                        fontSize: 18}}
+                         secureTextEntry
+                         onChangeText={(val) => setNewPassword(val)}/>
+                    </View>
+
+                    <View style ={{flexDirection: 'row', marginTop:20}}>
+                        <TextInput placeholder= "Re-type New Password" style = {{color: 'lightgrey', paddingLeft: 20, height: 40, borderBottomWidth: 0.5, flex: 1, fontSize: 18}} secureTextEntry/>
+                    </View>
+
+                    <View> 
+
+
+                        <Button title="Sign Up"
+                        onPress={() => navigation.navigate('HomeScreen')} />
+                        
+                            {/* <Text style= {{color: 'white',fontWeight: "bold", fontSize: 18}}>
+                            Sign Up
+                            </Text> */}
+                        
+                    </View>
+
+                    <View style={{marginVertical:20, flexDirection: 'row', justifyContent: 'center',alignItems: 'center'}}>
+                        <Text style = {{fontWeight:"bold", marginHorizontal: 5}}>- OR -</Text>
+                    </View>    
+
+                </View>
+
+
+                <View style = {STYLES.buttonGuest}>
+                    <TouchableOpacity onPress={() => navigation.navigate('HomeScreen')}> 
+                        <Text style= {{color: 'white',fontWeight: "bold", fontSize: 18}}>
+                         Enter As Guest
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+
+                <View style={{flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'center', marginTop: 40, marginBottom: 20}}>
+
+                    <Text style={{color: 'lightgrey', fontWeight: "bold"}}>Already have an account? </Text>
+                    <TouchableOpacity onPress={()=> navigation.navigate('SignIn')}>
+                        <Text style={{color: 'aqua', fontWeight: "bold"}}>SIGN IN</Text>
+                    </TouchableOpacity>
+                    
+                </View>     
+            </ScrollView>
+        </SafeAreaView>
+
+
+    );
+
+}
+
+export default SignUpScreen;
