@@ -1,6 +1,5 @@
 import React from 'react';
 import {StyleSheet,View,Text, SafeAreaView, ScrollView, TextInput,TouchableOpacity} from 'react-native';
-import Axios from 'axios';
 import axios from 'axios';
 
 const STYLES = StyleSheet.create({
@@ -50,6 +49,9 @@ function SignInScreen({navigation}) {
         .catch(err => {
             console.log(err)
         })
+
+
+    this.state
 
 
     return(

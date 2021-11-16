@@ -24,7 +24,8 @@ function HomeScreen({navigation}) {
         <SafeAreaView style = {{justifyContent: 'center', alignItems:'center', flex: 1}}>
             
             <Text>Hello You Are On The HOMEPAGE!</Text>
-            <Button title= "GO BACK" onPress={()=> navigation.navigate('SignIn')}></Button>
+            <Button title= "Logout" onPress={()=> navigation.navigate('SignIn')}></Button>
+            <Button title= "Add Restroom" onPress={() => navigation.navigate('SubmissonScreen')}></Button>
             
         </SafeAreaView>
 

@@ -6,11 +6,10 @@ import SignInScreen from './screens/SignInScreen';
 import SignUpScreen from './screens/SignUpScreen';
 import HomeScreen from './screens/HomeScreen';
 import FavoriteScreen from './screens/FavoriteScreen';
-import RatingScreen from './screens/RatingScreen';
-import { createDrawerNavigator } from '@react-navigation/drawer';
+import SubmissionScreen from './screens/SubmissonScreen';
+// import { createDrawerNavigator } from '@react-navigation/drawer';
 
 const Stack = createNativeStackNavigator();
-const Drawer = createDrawerNavigator();
 
 function App() {
 
@@ -18,8 +17,7 @@ function App() {
   return (
    <NavigationContainer>
      <Stack.Navigator>
-       <Drawer.Navigator>
-        
+
           <Stack.Screen name = "SignIn" component = {SignInScreen} options={{ header: () => null }} />
           <Stack.Screen name = "Sign Up" component = {SignUpScreen} options={{ header: () => null }}/>
                     
@@ -27,9 +25,8 @@ function App() {
 
           
           <Stack.Screen name = "FavoriteScreen" component = {FavoriteScreen} options={{ header: () => null}}/>
-          <Stack.Screen name = "RatingScreen" component = {RatingScreen} options={{ header: () => null}}/>
+          <Stack.Screen name = "SubmissonScreen" component = {SubmissionScreen} options={{ header: () => null}}/>
 
-        </Drawer.Navigator>
      </Stack.Navigator>
    </NavigationContainer>
   );
