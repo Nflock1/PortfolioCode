@@ -32,10 +32,10 @@ function SubmissionScreen({navigation}) {
 
         <SafeAreaView style= {{paddingHOrizontal: 20, flex: 1, backgroundColor: 'white'}}>
 
-            <View style={{alignItems: 'center', marginTop:30}}>
+            {/* <View style={{alignItems: 'center', marginTop:30}}>
                 <Button title= "GO BACK" onPress={()=> navigation.navigate('SignIn')}></Button>            
                 <Text>Hello You Are On The Restroom Submission Page!</Text>
-            </View>
+            </View> */}
             
             <View style ={{marginTop: 20}}>
                 <View style ={{flexDirection: 'row', marginTop:20}}>
@@ -61,7 +61,7 @@ function SubmissionScreen({navigation}) {
 
                 <View style = {STYLES.buttonSignIn}>
                         <TouchableOpacity onPress={() => Alert.alert('Success!', 'Your submission was submitted', [
-                            {text: 'Go Back Home', onPress: ()=> navigation.navigate('HomeScreen')}
+                            {text: 'Go Back Home', onPress: ()=> navigation.navigate('Home')}
                         ]) }>
                             <Text style= {{color: 'white',fontWeight: "bold", fontSize: 18}}> 
                                 Submit

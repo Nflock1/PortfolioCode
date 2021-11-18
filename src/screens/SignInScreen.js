@@ -1,6 +1,7 @@
 import React from 'react';
 import {StyleSheet,View,Text, SafeAreaView, ScrollView, TextInput,TouchableOpacity} from 'react-native';
 import axios from 'axios';
+import { AuthContext } from '../context';
 
 const STYLES = StyleSheet.create({
 
@@ -35,6 +36,9 @@ const STYLES = StyleSheet.create({
 
 
 function SignInScreen({navigation}) {
+    
+    const {signIn} = React.useContext(AuthContext);
+    const {enterAsGuest} = React.useContext(AuthContext);
 
     const [userName, setUserName] = React.useState(null);
     const [userPassword, setPassoword] = React.useState(null);
@@ -50,8 +54,6 @@ function SignInScreen({navigation}) {
             console.log(err)
         })
 
-
-    this.state
 
 
     return(
@@ -92,7 +94,7 @@ function SignInScreen({navigation}) {
                     </View>
                     <View style ={{flexDirection: 'row', marginTop:20}}>
                         <TextInput placeholder= "Password" 
-                        style = {{color: 'lightgrey', 
+                        style = {{color: 'black', 
                         paddingLeft: 20, 
                         height: 40, 
                         borderBottomWidth: 0.5, 
@@ -103,7 +105,7 @@ function SignInScreen({navigation}) {
                     </View>
 
                     <View style = {STYLES.buttonSignIn}>
-                        <TouchableOpacity onPress={() => navigation.navigate('HomeScreen')}>
+                        <TouchableOpacity onPress={() => signIn()}>
                             <Text style= {{color: 'white',fontWeight: "bold", fontSize: 18}}> 
                                 Sign In
                             </Text>
@@ -118,7 +120,7 @@ function SignInScreen({navigation}) {
 
 
                 <View style = {STYLES.buttonGuest}>
-                    <TouchableOpacity onPress={() => navigation.navigate('HomeScreen')}>
+                    <TouchableOpacity onPress={() => enterAsGuest()}>
                         <Text style= {{color: 'white',fontWeight: "bold", fontSize: 18}}>
                          Enter As Guest
                         </Text>

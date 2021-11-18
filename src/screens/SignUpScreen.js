@@ -1,6 +1,7 @@
 import axios from 'axios';
 import React from 'react';
 import {StyleSheet,View,Text, SafeAreaView, ScrollView, TextInput,TouchableOpacity, Button, Alert} from 'react-native';
+import { AuthContext } from '../context';
 
 const STYLES = StyleSheet.create({
 
@@ -33,9 +34,11 @@ const STYLES = StyleSheet.create({
 });
 
 function SignUpScreen({navigation}) {
+    const {signUp} = React.useContext(AuthContext);
+    const {enterAsGuest} = React.useContext(AuthContext);
 
-    const [newUsername, setNewUser] = React.useState(null);
-    const [newPassword, setNewPassword] = React.useState(null);
+    const [newUsername, setNewUser] = React.useState(null); //New Username to be pushed to the backend
+    const [newPassword, setNewPassword] = React.useState(null); //New Password to be pushed to the backend
 
     const newUser = {
         newUsername,
@@ -75,7 +78,7 @@ function SignUpScreen({navigation}) {
 
                     <View style ={{flexDirection: 'row', marginTop:20}}>
                         <TextInput placeholder= "New Username" 
-                        style = {{color: 'lightgrey'
+                        style = {{color: 'black'
                         , paddingLeft: 20, 
                         height: 40, 
                         borderBottomWidth: 0.5, 
@@ -87,7 +90,7 @@ function SignUpScreen({navigation}) {
 
                     <View style ={{flexDirection: 'row', marginTop:20}}>
                         <TextInput placeholder= "New Password" 
-                        style = {{color: 'lightgrey', 
+                        style = {{color: 'black', 
                         paddingLeft: 20, 
                         height: 40, 
                         borderBottomWidth: 0.5, 
@@ -98,19 +101,22 @@ function SignUpScreen({navigation}) {
                     </View>
 
                     <View style ={{flexDirection: 'row', marginTop:20}}>
-                        <TextInput placeholder= "Re-type New Password" style = {{color: 'lightgrey', paddingLeft: 20, height: 40, borderBottomWidth: 0.5, flex: 1, fontSize: 18}} secureTextEntry/>
+                        <TextInput placeholder= "Re-type New Password" 
+                        style = {{color: 'lightgrey',
+                        paddingLeft: 20, 
+                        height: 40, 
+                        borderBottomWidth: 0.5, 
+                        flex: 1, 
+                        fontSize: 18}} 
+                        secureTextEntry/>
                     </View>
 
-                    <View> 
-
-
-                        <Button title="Sign Up"
-                        onPress={() => navigation.navigate('HomeScreen')} />
-                        
-                            {/* <Text style= {{color: 'white',fontWeight: "bold", fontSize: 18}}>
-                            Sign Up
-                            </Text> */}
-                        
+                    <View style = {STYLES.buttonSignIn}>
+                        <TouchableOpacity onPress={() => signUp()}>
+                            <Text style= {{color: 'white',fontWeight: "bold", fontSize: 18}}> 
+                                Click To Become A Certified Pooper!
+                            </Text>
+                        </TouchableOpacity>
                     </View>
 
                     <View style={{marginVertical:20, flexDirection: 'row', justifyContent: 'center',alignItems: 'center'}}>
@@ -121,7 +127,7 @@ function SignUpScreen({navigation}) {
 
 
                 <View style = {STYLES.buttonGuest}>
-                    <TouchableOpacity onPress={() => navigation.navigate('HomeScreen')}> 
+                    <TouchableOpacity onPress={() => enterAsGuest()}> 
                         <Text style= {{color: 'white',fontWeight: "bold", fontSize: 18}}>
                          Enter As Guest
                         </Text>

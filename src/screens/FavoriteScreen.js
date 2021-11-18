@@ -24,7 +24,7 @@ function FavoriteScreen({navigation}) {
         <SafeAreaView justifyContent = 'center' alignItems = 'center'>
             
             <Text>Hello You Are On The FAVORITES PAGE!</Text>
-            <Button title= "GO BACK" onPress={()=> navigation.navigate('SignIn')}></Button>
+            <Button title= "GO BACK" onPress={()=> navigation.navigate('Home')}></Button>
             
         </SafeAreaView>
 

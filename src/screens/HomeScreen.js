@@ -1,6 +1,7 @@
 import axios from 'axios';
 import React from 'react';
 import {StyleSheet,View,Text, SafeAreaView, ScrollView, TextInput,TouchableOpacity, Button, Alert} from 'react-native';
+import { AuthContext } from '../context';
 
 const STYLES = StyleSheet.create({
     buttonSignIn: {
@@ -17,6 +18,7 @@ const STYLES = StyleSheet.create({
 });
 
 function HomeScreen({navigation}) {
+    const {signOut} = React.useContext(AuthContext);
 
 
     return(
@@ -24,8 +26,8 @@ function HomeScreen({navigation}) {
         <SafeAreaView style = {{justifyContent: 'center', alignItems:'center', flex: 1}}>
             
             <Text>Hello You Are On The HOMEPAGE!</Text>
-            <Button title= "Logout" onPress={()=> navigation.navigate('SignIn')}></Button>
-            <Button title= "Add Restroom" onPress={() => navigation.navigate('SubmissonScreen')}></Button>
+            <Button title= "Logout" onPress={()=> signOut()}></Button>
+            {/* <Button title= "Add Restroom" onPress={() => navigation.navigate('SubmissonScreen')}></Button> */}
             
         </SafeAreaView>
 
