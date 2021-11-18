@@ -39,16 +39,16 @@ app.post('/api/register', async (req, res) => {
 			password
 		})
 		console.log('User created successfully: ', response)
-		res.sendStatus(200)
+		res.status(200)
+		res.json({ message: 'User has been registered sucessfully' })
 	} catch (error) {
 		if (error.code === 11000) {
 			// duplicate key
+			res.status(400)
 			return res.json({ message: 'Username already in use' })
 		}
 		throw error
 	}
-
-	res.json({ message: 'User has been registered' })
 })
 
 
@@ -57,6 +57,7 @@ app.post('/api/login', async (req, res) => {
 	const user = await User.findOne({ username }).lean()
 
 	if (!user) {
+		res.status(400)
 		return res.json({ message: 'Invalid username/password' })
 	}
 
@@ -71,10 +72,10 @@ app.post('/api/login', async (req, res) => {
 			},
 			process.env.JWT_SECRET
 		)
-
+		res.status(200)
 		return res.json({ message: 'login successfully authenticated', data: token })
 	}
-
+	res.status(400)
 	res.json({ message: 'Invalid username/password' })
 })
 
@@ -85,10 +86,12 @@ function verifyJWT(req, res, next) {
 		jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
 			if(err) { 
 				console.log(err);
-				return res.json({
+				res.status(401)
+				res.json({
 					message: "Failed To Authenticate",
 					isLoggedIn: false
 				})
+				return res
 			}
 			req.user = {};
 			req.user.id = decoded.id
@@ -96,6 +99,7 @@ function verifyJWT(req, res, next) {
 			next()
 		})
 	} else{
+		res.status(401)
 		res.json({message: "Incorrect Token Given", isLoggedIn: false})
 	}
 }
@@ -105,20 +109,33 @@ app.delete('/api/rm-user', verifyJWT, async (req, res) => {
     let myquery = { _id: objectId(req.user.id)};
     User.deleteOne(myquery, (err, obj) => {
         if(err) throw err;
+		res.status(400)
 		res.status(obj);
 		UserData.deleteOne(myquery, (error, object) =>{
 			if(error) throw error;
+			res.status(400);
 			res.status(object);
 		})
+		res.status(200);
         res.json({message: "1 user successfully deleted", isLoggedIn: false})
-    })
+	})
 })
 
 //gets user data
 app.get('api/userData', verifyJWT, async (req, res) =>{
 	let myquery = { _id: objectId(req.user.id)}
-	const userData = await UserData.findOne(myquery).lean()
+	const userData = await UserData.findOne(myquery, (err, response) =>{
+		if(err) throw err;
+			res.status(200)
+			res.json({message: "Restroom has been sucessfully updated", data: response});
+	}).lean()
+	if(userData){
+	res.status(200)
 	res.json({message: "user sucessfully retreived", data: userData})
+	} else {
+		res.status(400)
+		res.json({message: "userdata not found in database"});
+	}
 })
 
 //for updating user data with a new userData object
@@ -126,15 +143,23 @@ app.post('/api/update-userData', verifyJWT, async (req, res)=>{
 	let myQuery = { _id: objectId(req.user.id)}
 	// may need to make this a mongoose object/schema
 	let newData = req.body;
-	userData.updateOne(myQuery, newData ,(err, response) =>{
-		if(err) throw err;
-		res.json({message: "userData has been sucessfully updated", data: response});
+	userData.updateOne(myQuery, newData , (err, response) =>{
+		if(err) {
+			res.sendStatus(400);
+			throw err;
+		}
+		res.status(200)
+		res.json({message: "Restroom has been sucessfully updated", data: response});
 	})
 })
 
 //posting a new restroom object to the server
 app.post('/api/new-RR', verifyJWT, async (req, res) =>{
-	const { name, description, address, longitude, lattitude, clean, smell, TP, safety, privacy, busyness, price, handicap, genderNeutral, hygiene, changingStation } = req.body
+	const { name, description, address, longitude,
+		 lattitude, clean, smell, TP, safety, 
+		 privacy, busyness, price, handicap, 
+		 genderNeutral, hygiene, changingStation } = req.body
+
 	try {
 		//may need to modify creation based on if all fields exist
 		const response = await Restroom.create({
@@ -152,6 +177,7 @@ app.post('/api/new-RR', verifyJWT, async (req, res) =>{
 	} catch (error) {
 		if (error.code === 11000) {
 			// duplicate key
+			res.status(400);
 			return res.json({ message: 'Restroom already exists' })
 		}
 		throw error
@@ -164,8 +190,12 @@ app.post('/api/update-RRData', verifyJWT, async (req, res)=>{
 	// may need to make this a mongoose object/schema
 	let newData = req.body;
 	userData.updateOne(myquery, newData , (err, response) =>{
-		if(err) throw err;
-		res.json({message: "Restroom has been sucessfully updated", data: response});
+		if(err) {
+			res.status(400);
+			throw err;
+		}
+			res.status(200)
+			res.json({message: "Restroom has been sucessfully updated", data: response});
 	})
 })
 
@@ -176,18 +206,24 @@ app.delete('/api/del-RR', verifyJWT, async(req, res) => {
 	//first try to query address, but if address not provided then name
 	let myquery = {address:  req.body.address} || {name: req.body.name};
     Restroom.deleteOne(myquery, (err, obj) => {
-        if(err) throw err;
+        if(err) {
+			res.sendStatus(400);
+			throw err;
+		}
 		res.status(obj);
         res.json({message: "1 restroom successfully deleted"})
     })
 })
 
+//get specific restroom
 app.get('/api/restroom', async (req, res) => {
 	let myquery = {address:  req.body.address} || {name: req.body.name};
 	const restroom = await Restroom.findOne(myquery).lean()
 	if(!restroom){
+		res.status(400)
 		return res.json({message: "restroom not found"})
 	}
+	res.status(200)
 	res.json({message: "restroom has been found", data: restroom})
 })
 
@@ -195,23 +231,60 @@ app.get('/api/restroom', async (req, res) => {
 //req.body should contain lat and long coords to restroom as well 
 //as a distance field for the range in miles needed
 //no verify because geusts can do this
+//make radius
 app.get('/api/near-RR', async (req, res) =>{
-	long = req.body.longitude + req.body.distance/(54.5833333*2)
-	lat = req.body.lattitude + req.body.distance/(54.5833333*2)
-	let myquery = {longitude:{$gte: -1*long, $lt: long}, lattitude: {$gte: -1*lat, $lt: lat}}
+	long1 = req.body.longitude - req.body.radius/(54.5833333*2)
+	long2 = req.body.longitude + req.body.radius/(54.5833333*2)
+	lat1 = req.body.lattitude - req.body.radius/(54.5833333*2)
+	lat2 = req.body.lattitude + req.body.radius/(54.5833333*2)
+	let myquery = {longitude:{$gte: long1, $lte: long2}, lattitude: {$gte: lat1, $lte: lat2}}
 	const restroom = Restroom.find(myquery).lean();
+
 	if(!restroom){
+		res.status(200)
 		return res.json({message: "no nearby restrooms"})
 	}
+	let rNew = restroom
+	for(var i = 0; i<restroom.length; i++){
+		if(Math.pow(restroom[i].longitude) + Math.pow(restroom[i].lattitude) > Math.pow(req.body.radius)){
+			rNew = restroom.splice(i, 1)
+		}
+	}
+	res.status(200)
 	res.json({message: "restrooms sucessfully found", data: restroom})
 })
 
 //post for when a user leaves a new review
 app.post('/api/new-review', verifyJWT, async (req, res) =>{
-	const rest = await Restroom.get('api/restroom', req.body.RestroomId);
+	const rest = await Restroom.get('api/restroom', req.body.RestroomID);
 	if(!rest){
 		return res.json({message: "restroom not found"})
 	}
+
+	const { name, description, address, longitude,
+		lattitude, clean, smell, TP, safety, 
+		privacy, busyness, price, handicap, 
+		genderNeutral, hygiene, changingStation } = req.body
+	
+	const myQuery = {RestroomID = req.RestroomID, UserID = req.UserID}
+	let post = await Review.get("/api/unique-review", myQuery)
+	if(post) {
+		const rev = await Review.create({
+			name, description, 
+			address, longitude, 
+			lattitude, clean, 
+			smell, TP, safety, 
+			privacy, busyness, 
+			price, handicap, 
+			genderNeutral, hygiene, 
+			changingStation
+		})
+		res.Sendstatus(rev)
+	} else {
+		res.status(400)
+		res.json({message: "this is a duplicate review"})
+	}
+
 	const restNew = rest
 	//first index of each rating is the avg, 2nd is the number of reviews that contributed
 	restNew.clean[0] = (restNew.clean[0]*restNew.clean[1] + req.body.clean)/restNew.clean[1]
@@ -226,5 +299,36 @@ app.post('/api/new-review', verifyJWT, async (req, res) =>{
 	restNew.hygiene += req.body.hygiene
 	restNew.changingStation += req.body.changingStation
 
+	res.status(200)
+	return res.json({message: "review sucessfully created"})
+
 	//create new object when history is a thing
+})
+
+//need to ensure path security here
+app.get('/api/unique-review', async (req, res) =>{
+	let myQuery = {
+		RestroomID = req.body.RestroomID,
+		UserID = req.body.UserID
+	}
+	const rest = Restroom.findOne(myQuery).lean()
+	if(!rest){
+		return res.json({data: true})
+	}
+	res.json({data: false})
+})
+
+//deletes review
+app.delete('/api/del-review', verifyJWT, async(req, res) => {
+	//should have something here so only authorized accounts can delete RR
+	//first try to query address, but if address not provided then name
+	let myquery = {RestroomID:  req.body.RestroomID, UserID: req.body.UserID};
+    Restroom.deleteOne(myquery, (err, obj) => {
+        if(err) {
+			res.sendStatus(400);
+			throw err;
+		}
+		res.status(obj);
+        res.json({message: "1 review successfully deleted"})
+    })
 })
