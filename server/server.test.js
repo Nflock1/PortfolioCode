@@ -66,7 +66,6 @@ const Review = require('../models/review')
 
     test('creating restroom', async() => {
         const req = {
-             
             name: "testroom", description: "this is a test", address: "1234 mound street", longitude: 44.2341,
 		    lattitude: 45.2213, clean: [0,0], smell: [0,0], TP: [0,0], safety: [0,0], 
 		    privacy: [0,0], busyness: [0,0], price: 0, handicap: 0, 
@@ -108,14 +107,31 @@ const Review = require('../models/review')
         res = await request(app).delete('/api/rm-RR').send(req).set({'x-access-token': responseToken}).expect(200)
         expect(res.body.data.deletedCount).toBe(0)
     })
-
     test('remove user', async() => {
-        jest.setTimeout(10000)
         const res = await request(app).delete('/api/rm-user').send({}).set({'x-access-token': responseToken}).expect(200)
-        console.log("bitch")
         const res2 = await User.findOne({name: "tests"}).lean()
-        expect(res.body.data.deletedCount).toBe(1)
+        //expect(res.body.data.deletedCount).toBe(1)
         expect(res2).toBeFalsy()
+    })
+
+    test('get multiple restrooms', async() => {
+        Restroom.findOneAndDelete({})
+        let req = {
+            name: "testroomA", description: "this is a test", address: "12316 mound street", longitude: 44.2341,
+		    lattitude: 45.2213, clean: [0,0], smell: [0,0], TP: [0,0], safety: [0,0], 
+		    privacy: [0,0], busyness: [0,0], price: 0, handicap: 0, 
+		    genderNeutral: 0, hygiene: 0, changingStation: 0
+        }
+        Restroom.create(req)
+        
+        let res = await request(app).get('/api/near-RR')
+        .send({longitude: 44.2341, lattitude: 45.2213, radius: 3})
+        .set({'x-access-token': responseToken})
+        .expect(200)
+        console.log("res.body.data")
+        expect(res.body.data.length).toBe(1)
+
+        Restroom.findOneAndDelete({})
     })
 
 

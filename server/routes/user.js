@@ -3,11 +3,13 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
+const CircularJSON = require('circular-json');
 const User = require('../../models/user');
 const UserData = require('../../models/userData');
 const Restroom = require('../../models/restroom')
 const Review = require('../../models/review')
 const userRoutes = express.Router();
+const util = require('util')
 module.exports = userRoutes;
 
 //may need to revise this string
@@ -44,7 +46,6 @@ userRoutes.post('/api/login', async (req, res) => {
 		res.status(400)
 		return res.json({ message: 'Invalid username/password' })
 	}
-	console.log(user._id)
 
 	if (await bcrypt.compare(password, user.password)) {
 		// the username, password combination is successful
@@ -89,15 +90,15 @@ function verifyJWT(req, res, next) {
 //removes currently logged in user
 userRoutes.delete('/api/rm-user', verifyJWT, async (req, res) => {
     let myquery = { _id: req.user.id};
-	console.log(myquery);
     User.deleteOne(myquery, (err, obj) => {
         if(err) throw err;
 		UserData.deleteOne(myquery, (error, object) =>{
 			if(error) throw error;
 		})
+		res.status(200);
+		res.json({message: "1 user successfully deleted", isLoggedIn: false, data: obj})
 	})
-	res.status(200);
-	res.json({message: "1 user successfully deleted", isLoggedIn: false, data: obj})
+	
 })
 
 //gets user data 
@@ -187,7 +188,6 @@ userRoutes.delete('/api/rm-RR', verifyJWT, async(req, res) => {
 	let myquery = {}
 	if (typeof address !== 'undefined') myquery = {address:  req.body.address}
 	else myquery = {name: req.body.name};
-	console.log(myquery)
     Restroom.deleteOne(myquery, (err, obj) => {
         if(err) {
 			res.sendStatus(400);
@@ -216,23 +216,31 @@ userRoutes.get('/api/restroom', async (req, res) => {
 //no verify because geusts can do this
 //make radius
 userRoutes.get('/api/near-RR', async (req, res) =>{
-	long1 = req.body.longitude - req.body.radius/(54.5833333*2)
-	long2 = req.body.longitude + req.body.radius/(54.5833333*2)
-	lat1 = req.body.lattitude - req.body.radius/(54.5833333*2)
-	lat2 = req.body.lattitude + req.body.radius/(54.5833333*2)
-	let myquery = {longitude:{$gte: long1, $lte: long2}, lattitude: {$gte: lat1, $lte: lat2}}
-	const restroom = Restroom.find(myquery).lean();
 
+	var long1 = req.body.longitude - req.body.radius/(54.5833333)
+	var long2 = req.body.longitude + req.body.radius/(54.5833333)
+	var lat1 = req.body.lattitude - req.body.radius/(54.5833333)
+	var lat2 = req.body.lattitude + req.body.radius/(54.5833333)
+	console.log(long1)
+	console.log(long2)
+	console.log(lat1)
+	console.log(lat2)
+
+	let myquery = {longitude:{$gte: long1, $lte: long2}, lattitude: {$gte: lat1, $lte: lat2}}
+	const restroom = Restroom.findOne(myquery);
+	console.log(restroom)
 	if(!restroom){
 		res.status(200)
-		return res.json({message: "no nearby restrooms"})
+		return res.json({message: "no nearby restrooms", data: restroom})
 	}
-	let rNew = restroom
+	/*
+	var rNew = restroom
 	for(var i = 0; i<restroom.length; i++){
 		if(Math.pow(restroom[i].longitude) + Math.pow(restroom[i].lattitude) > Math.pow(req.body.radius)){
 			rNew = restroom.splice(i, 1)
 		}
 	}
+	*/
 	res.status(200)
 	res.json({message: "restrooms sucessfully found", data: restroom})
 })
@@ -262,7 +270,7 @@ userRoutes.post('/api/new-review', verifyJWT, async (req, res) =>{
 			genderNeutral, hygiene, 
 			changingStation
 		})
-		res.Sendstatus(rev)
+		res.sendStatus(rev)
 	} else {
 		res.status(400)
 		res.json({message: "this is a duplicate review"})
