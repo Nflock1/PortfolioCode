@@ -221,28 +221,27 @@ userRoutes.get('/api/near-RR', async (req, res) =>{
 	var long2 = req.body.longitude + req.body.radius/(54.5833333)
 	var lat1 = req.body.lattitude - req.body.radius/(54.5833333)
 	var lat2 = req.body.lattitude + req.body.radius/(54.5833333)
-	console.log(long1)
-	console.log(long2)
-	console.log(lat1)
-	console.log(lat2)
 
 	let myquery = {longitude:{$gte: long1, $lte: long2}, lattitude: {$gte: lat1, $lte: lat2}}
-	const restroom = Restroom.findOne(myquery);
-	console.log(restroom)
-	if(!restroom){
-		res.status(200)
-		return res.json({message: "no nearby restrooms", data: restroom})
-	}
-	/*
-	var rNew = restroom
-	for(var i = 0; i<restroom.length; i++){
-		if(Math.pow(restroom[i].longitude) + Math.pow(restroom[i].lattitude) > Math.pow(req.body.radius)){
-			rNew = restroom.splice(i, 1)
+	Restroom.find(myquery, (err, docs) => {
+		if(err) throw err
+		if(!docs){
+			res.status(200)
+			return res.json({message: "no nearby restrooms", data: docs})
+		}	
+		var rNew = docs
+	for(var i = 0; i<docs.length; i++){
+		console.log(((docs[i].longitude-req.body.longitude*(54.5833333), 2)) + Math.pow((docs[i].lattitude-req.body.lattitude)*(54.5833333), 2))
+		console.log(Math.pow(req.body.radius, 2))
+		if(Math.pow((docs[i].longitude-req.body.longitude*(54.5833333), 2)) + Math.pow((docs[i].lattitude-req.body.lattitude)*(54.5833333), 2) > Math.pow(req.body.radius, 2)){
+			console.log("BOITIASDIFHAS")
+			rNew = docs.splice(i, 1)
 		}
 	}
-	*/
 	res.status(200)
-	res.json({message: "restrooms sucessfully found", data: restroom})
+	res.json({message: "restrooms sucessfully found", data: rNew})
+	});
+	
 })
 
 //post for when a user leaves a new review

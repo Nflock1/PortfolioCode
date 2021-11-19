@@ -10,7 +10,7 @@ const Restroom = new mongoose.Schema(
         clean: {type: [Number], required: true },
         smell: {type: [Number], required: true },
         TP: {type: [Number], required: true },
-        safety: {type: [Number], required: true },
+        sayety: {type: [Number], required: true },
         privacy: {type: [Number], required: true },
         busyness: {type: [Number], required: true }, 
         price: {type: Number, required: true},

@@ -115,23 +115,34 @@ const Review = require('../models/review')
     })
 
     test('get multiple restrooms', async() => {
-        Restroom.findOneAndDelete({})
         let req = {
-            name: "testroomA", description: "this is a test", address: "12316 mound street", longitude: 44.2341,
+            name: "testroomB", description: "this is a test", address: "12318 mound street", longitude: 44.2341,
 		    lattitude: 45.2213, clean: [0,0], smell: [0,0], TP: [0,0], safety: [0,0], 
 		    privacy: [0,0], busyness: [0,0], price: 0, handicap: 0, 
 		    genderNeutral: 0, hygiene: 0, changingStation: 0
         }
-        Restroom.create(req)
-        
+        await Restroom.create(req)
+        req.name = "testroomC"
+        req.address = "1238979034"
+        req.longitude = req.longitude+(1/75)
+        req.lattitude = req.lattitude+(1/75)
+        await Restroom.create(req)
+        req.name = "testroomD"
+        req.address = "123897s9034"
+        req.longitude = req.longitude+1
+        req.lattitude = req.lattitude+1
+        await Restroom.create(req)
+
         let res = await request(app).get('/api/near-RR')
         .send({longitude: 44.2341, lattitude: 45.2213, radius: 3})
         .set({'x-access-token': responseToken})
         .expect(200)
-        console.log("res.body.data")
-        expect(res.body.data.length).toBe(1)
+        console.log(res.body.data)
+        expect(res.body.data.length).toBe(2)
 
-        Restroom.findOneAndDelete({})
+        Restroom.deleteOne({name: 'testroomB'})
+        Restroom.deleteOne({name: 'testroomC'})
+        Restroom.deleteOne({name: 'testroomD'})
     })
 
 
