@@ -140,9 +140,9 @@ const Review = require('../models/review')
         console.log(res.body.data)
         expect(res.body.data.length).toBe(2)
 
-        Restroom.deleteOne({name: 'testroomB'})
-        Restroom.deleteOne({name: 'testroomC'})
-        Restroom.deleteOne({name: 'testroomD'})
+        await Restroom.deleteOne({name: 'testroomB'})
+        await Restroom.deleteOne({name: 'testroomC'})
+        await Restroom.deleteOne({name: 'testroomD'})
     })
 
 
