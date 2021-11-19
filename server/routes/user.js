@@ -1,35 +1,22 @@
+const JWT_SECRET = "o7br@c0b4!@290y83r2@C$^#$%IHtqewuth3%#$&45th029t"
 const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-const User = require('../models/user');
-const userData = require('../models/userData');
-const Restroom = require('../models/restroom')
-const Review = require('../modes/review')
-const { MongoTopologyClosedError } = require('mongoose/node_modules/mongodb');
-const { resetWarningCache } = require('prop-types');
+const CircularJSON = require('circular-json');
+const User = require('../../models/user');
+const UserData = require('../../models/userData');
+const Restroom = require('../../models/restroom')
+const Review = require('../../models/review')
 const userRoutes = express.Router();
+const util = require('util')
 module.exports = userRoutes;
 
 //may need to revise this string
 
 
-app.post('/api/register', async (req, res) => {
+userRoutes.post('/api/register', async (req, res) => {
 	const { username, password: plainTextPassword } = req.body
-
-	if (!username || typeof username !== 'string') {
-		return res.json({ message: 'Invalid username' })
-	}
-
-	if (!plainTextPassword || typeof plainTextPassword !== 'string') {
-		return res.json({ message: 'Invalid password' })
-	}
-
-	if (plainTextPassword.length < 5) {
-		return res.json({
-			message: 'Password too small. Should be atleast 6 characters'
-		})
-	}
 
 	const password = await bcrypt.hash(plainTextPassword, 5)
 
@@ -38,57 +25,56 @@ app.post('/api/register', async (req, res) => {
 			username,
 			password
 		})
-		console.log('User created successfully: ', response)
-		res.sendStatus(200)
+		res.status(200)
+		res.json({ message: 'User has been registered sucessfully', data:response })
 	} catch (error) {
 		if (error.code === 11000) {
 			// duplicate key
+			res.status(400)
 			return res.json({ message: 'Username already in use' })
 		}
 		throw error
 	}
-
-	res.json({ message: 'User has been registered' })
 })
 
 
-app.post('/api/login', async (req, res) => {
+userRoutes.post('/api/login', async (req, res) => {
 	const { username, password } = req.body
-	const user = await User.findOne({ username }).lean()
+	const user = await User.findOne({ username: username }).lean()
 
 	if (!user) {
+		res.status(400)
 		return res.json({ message: 'Invalid username/password' })
 	}
 
 	if (await bcrypt.compare(password, user.password)) {
 		// the username, password combination is successful
         //want to see if we need to define this
-        console.log("jwt secret: " + process.env.JWT_SECRET);
 		const token = jwt.sign(
 			{
 				id: user._id,
 				username: user.username
 			},
-			process.env.JWT_SECRET
+			JWT_SECRET
 		)
-
+		res.status(200)
 		return res.json({ message: 'login successfully authenticated', data: token })
 	}
-
+	res.status(400)
 	res.json({ message: 'Invalid username/password' })
 })
 
 function verifyJWT(req, res, next) {
 	const token = req.headers["x-access-token"]
-	
 	if(token) {
-		jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+		jwt.verify(token, JWT_SECRET, (err, decoded) => {
 			if(err) { 
-				console.log(err);
-				return res.json({
+				res.status(401)
+				res.json({
 					message: "Failed To Authenticate",
 					isLoggedIn: false
 				})
+				throw err
 			}
 			req.user = {};
 			req.user.id = decoded.id
@@ -96,45 +82,64 @@ function verifyJWT(req, res, next) {
 			next()
 		})
 	} else{
+		res.status(401)
 		res.json({message: "Incorrect Token Given", isLoggedIn: false})
 	}
 }
 
 //removes currently logged in user
-app.delete('/api/rm-user', verifyJWT, async (req, res) => {
-    let myquery = { _id: objectId(req.user.id)};
+userRoutes.delete('/api/rm-user', verifyJWT, async (req, res) => {
+    let myquery = { _id: req.user.id};
     User.deleteOne(myquery, (err, obj) => {
         if(err) throw err;
-		res.status(obj);
 		UserData.deleteOne(myquery, (error, object) =>{
 			if(error) throw error;
-			res.status(object);
 		})
-        res.json({message: "1 user successfully deleted", isLoggedIn: false})
-    })
+		res.status(200);
+		res.json({message: "1 user successfully deleted", isLoggedIn: false, data: obj})
+	})
+	
 })
 
-//gets user data
-app.get('api/userData', verifyJWT, async (req, res) =>{
-	let myquery = { _id: objectId(req.user.id)}
-	const userData = await UserData.findOne(myquery).lean()
+//gets user data 
+userRoutes.get('api/userData', verifyJWT, async (req, res) =>{
+	var ObjectId = require('mongoose').Types.ObjectId;
+	let myquery = { _id: ObjectId(req.user.id)}
+	const userData = await UserData.findOne(myquery, (err, response) =>{
+		if(err) throw err;
+	}).lean()
+	if(userData){
+	res.status(200)
 	res.json({message: "user sucessfully retreived", data: userData})
+	} else {
+		res.status(400)
+		res.json({message: "userdata not found in database"});
+	}
 })
 
 //for updating user data with a new userData object
-app.post('/api/update-userData', verifyJWT, async (req, res)=>{
-	let myQuery = { _id: objectId(req.user.id)}
+userRoutes.post('/api/update-userData', verifyJWT, async (req, res)=>{
+	var ObjectId = require('mongoose').Types.ObjectId;
+	let myQuery = { _id: ObjectId(req.user.id)}
 	// may need to make this a mongoose object/schema
 	let newData = req.body;
-	userData.updateOne(myQuery, newData ,(err, response) =>{
-		if(err) throw err;
-		res.json({message: "userData has been sucessfully updated", data: response});
+	UserData.updateOne(myQuery, newData , (err, response) =>{
+		if(err) {
+			res.sendStatus(400);
+			throw err;
+		}
+		res.status(200)
+		res.json({message: "Restroom has been sucessfully updated", data: response});
 	})
 })
 
 //posting a new restroom object to the server
-app.post('/api/new-RR', verifyJWT, async (req, res) =>{
-	const { name, description, address, longitude, lattitude, clean, smell, TP, safety, privacy, busyness, price, handicap, genderNeutral, hygiene, changingStation } = req.body
+userRoutes.post('/api/new-RR', verifyJWT, async (req, res) =>{
+	const { name, description, address, longitude,
+		 lattitude, clean, smell, TP, safety, 
+		 privacy, busyness, price, handicap, 
+		 genderNeutral, hygiene, changingStation } = req.body
+
 	try {
 		//may need to modify creation based on if all fields exist
 		const response = await Restroom.create({
@@ -147,11 +152,13 @@ app.post('/api/new-RR', verifyJWT, async (req, res) =>{
 			genderNeutral, hygiene, 
 			changingStation
 		})
-		console.log('Restroom created successfully: ', response)
+
 		res.sendStatus(200)
+		//return res.json({message: 'Restroom created successfully: ', data: response})
 	} catch (error) {
 		if (error.code === 11000) {
 			// duplicate key
+			res.status(400);
 			return res.json({ message: 'Restroom already exists' })
 		}
 		throw error
@@ -159,35 +166,47 @@ app.post('/api/new-RR', verifyJWT, async (req, res) =>{
 })
 
 //allows you to update a restroom object by pushing new restroom object for testing
-app.post('/api/update-RRData', verifyJWT, async (req, res)=>{
+userRoutes.post('/api/update-RRData', verifyJWT, async (req, res)=>{
 	let myquery = {address:  req.body.address} || {name: req.body.name};
 	// may need to make this a mongoose object/schema
 	let newData = req.body;
-	userData.updateOne(myquery, newData , (err, response) =>{
-		if(err) throw err;
-		res.json({message: "Restroom has been sucessfully updated", data: response});
+	UserData.updateOne(myquery, newData , (err, response) =>{
+		if(err) {
+			res.status(400);
+			throw err;
+		}
+			res.status(200)
+			res.json({message: "Restroom has been sucessfully updated", data: response});
 	})
 })
 
 
 //deletes RR by address or name
-app.delete('/api/del-RR', verifyJWT, async(req, res) => {
+userRoutes.delete('/api/rm-RR', verifyJWT, async(req, res) => {
 	//should have something here so only authorized accounts can delete RR
 	//first try to query address, but if address not provided then name
-	let myquery = {address:  req.body.address} || {name: req.body.name};
+	let myquery = {}
+	if (typeof address !== 'undefined') myquery = {address:  req.body.address}
+	else myquery = {name: req.body.name};
     Restroom.deleteOne(myquery, (err, obj) => {
-        if(err) throw err;
-		res.status(obj);
-        res.json({message: "1 restroom successfully deleted"})
+        if(err) {
+			res.sendStatus(400);
+			throw err;
+		}
+		res.status(200);
+        res.json({message: "1 restroom successfully deleted", data: obj})
     })
 })
 
-app.get('/api/restroom', async (req, res) => {
+//get specific restroom
+userRoutes.get('/api/restroom', async (req, res) => {
 	let myquery = {address:  req.body.address} || {name: req.body.name};
 	const restroom = await Restroom.findOne(myquery).lean()
 	if(!restroom){
+		res.status(400)
 		return res.json({message: "restroom not found"})
 	}
+	res.status(200)
 	res.json({message: "restroom has been found", data: restroom})
 })
 
@@ -195,23 +214,67 @@ app.get('/api/restroom', async (req, res) => {
 //req.body should contain lat and long coords to restroom as well 
 //as a distance field for the range in miles needed
 //no verify because geusts can do this
-app.get('/api/near-RR', async (req, res) =>{
-	long = req.body.longitude + req.body.distance/(54.5833333*2)
-	lat = req.body.lattitude + req.body.distance/(54.5833333*2)
-	let myquery = {longitude:{$gte: -1*long, $lt: long}, lattitude: {$gte: -1*lat, $lt: lat}}
-	const restroom = Restroom.find(myquery).lean();
-	if(!restroom){
-		return res.json({message: "no nearby restrooms"})
+//make radius
+userRoutes.get('/api/near-RR', async (req, res) =>{
+
+	var long1 = req.body.longitude - req.body.radius/(54.5833333)
+	var long2 = req.body.longitude + req.body.radius/(54.5833333)
+	var lat1 = req.body.lattitude - req.body.radius/(54.5833333)
+	var lat2 = req.body.lattitude + req.body.radius/(54.5833333)
+
+	let myquery = {longitude:{$gte: long1, $lte: long2}, lattitude: {$gte: lat1, $lte: lat2}}
+	Restroom.find(myquery, (err, docs) => {
+		if(err) throw err
+		if(!docs){
+			res.status(200)
+			return res.json({message: "no nearby restrooms", data: docs})
+		}	
+		var rNew = docs
+	for(var i = 0; i<docs.length; i++){
+		console.log(((docs[i].longitude-req.body.longitude*(54.5833333), 2)) + Math.pow((docs[i].lattitude-req.body.lattitude)*(54.5833333), 2))
+		console.log(Math.pow(req.body.radius, 2))
+		if(Math.pow((docs[i].longitude-req.body.longitude*(54.5833333), 2)) + Math.pow((docs[i].lattitude-req.body.lattitude)*(54.5833333), 2) > Math.pow(req.body.radius, 2)){
+			console.log("BOITIASDIFHAS")
+			rNew = docs.splice(i, 1)
+		}
 	}
-	res.json({message: "restrooms sucessfully found", data: restroom})
+	res.status(200)
+	res.json({message: "restrooms sucessfully found", data: rNew})
+	});
+	
 })
 
 //post for when a user leaves a new review
-app.post('/api/new-review', verifyJWT, async (req, res) =>{
-	const rest = await Restroom.get('api/restroom', req.body.RestroomId);
+userRoutes.post('/api/new-review', verifyJWT, async (req, res) =>{
+	const rest = await Restroom.get('api/restroom', req.body.RestroomID);
 	if(!rest){
 		return res.json({message: "restroom not found"})
 	}
+
+	const { name, description, address, longitude,
+		lattitude, clean, smell, TP, safety, 
+		privacy, busyness, price, handicap, 
+		genderNeutral, hygiene, changingStation } = req.body
+	
+	const myQuery = {RestroomID: req.RestroomID, UserID: req.UserID}
+	let post = await Review.get("/api/unique-review", myQuery)
+	if(post) {
+		const rev = await Review.create({
+			name, description, 
+			address, longitude, 
+			lattitude, clean, 
+			smell, TP, safety, 
+			privacy, busyness, 
+			price, handicap, 
+			genderNeutral, hygiene, 
+			changingStation
+		})
+		res.sendStatus(rev)
+	} else {
+		res.status(400)
+		res.json({message: "this is a duplicate review"})
+	}
+
 	const restNew = rest
 	//first index of each rating is the avg, 2nd is the number of reviews that contributed
 	restNew.clean[0] = (restNew.clean[0]*restNew.clean[1] + req.body.clean)/restNew.clean[1]
@@ -226,5 +289,36 @@ app.post('/api/new-review', verifyJWT, async (req, res) =>{
 	restNew.hygiene += req.body.hygiene
 	restNew.changingStation += req.body.changingStation
 
+	res.status(200)
+	return res.json({message: "review sucessfully created"})
+
 	//create new object when history is a thing
+})
+
+//need to ensure path security here
+userRoutes.get('/api/unique-review', async (req, res) =>{
+	let myQuery = {
+		RestroomID: req.body.RestroomID,
+		UserID: req.body.UserID
+	}
+	const rest = Restroom.findOne(myQuery).lean()
+	if(!rest){
+		return res.json({data: true})
+	}
+	res.json({data: false})
+})
+
+//deletes review
+userRoutes.delete('/api/del-review', verifyJWT, async(req, res) => {
+	//should have something here so only authorized accounts can delete RR
+	//first try to query address, but if address not provided then name
+	let myquery = {RestroomID:  req.body.RestroomID, UserID: req.body.UserID};
+    Restroom.deleteOne(myquery, (err, obj) => {
+        if(err) {
+			res.sendStatus(400);
+			throw err;
+		}
+		res.status(200);
+        res.json({message: "1 review successfully deleted", data: obj})
+    })
 })

@@ -1,10 +1,10 @@
-const internal = require("stream")
+const mongoose = require('mongoose')
 
 const ReviewSchema = new mongoose.Schema(
 	{
-		RestroomId: { type: String, required: true},
+		RestroomID: { type: String, required: true},
 		UserID: { type: String, required: true },
-        time: { type: String, required: true },
+        time: { type: String },
         clean: {type: Number, required: true },
         smell: {type: Number, required: true },
         TP: {type: Number, required: true },

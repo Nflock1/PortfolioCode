@@ -1,7 +1,10 @@
+const mongoose = require('mongoose')
+
+
 const UserDataSchema = new mongoose.Schema(
 	{
-		userId: { type: String, required: true, unique: true },
-		favoriteId: { type: [], required: true },
+		userID: { type: String, required: true, unique: true },
+		favoriteID: { type: [], required: true },
 	},
 	{ collection: 'userData' }
 )
