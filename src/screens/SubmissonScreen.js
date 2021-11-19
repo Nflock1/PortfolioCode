@@ -55,6 +55,7 @@ function SubmissionScreen({navigation}) {
                 <View style ={{flexDirection: 'row', marginTop:20}}>
                     <TextInput
                         placeholder = "Description"
+                        multiline = {true}
                         style = {STYLES.textBoxStyle}
                     />
                 </View>
