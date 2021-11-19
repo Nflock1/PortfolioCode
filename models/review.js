@@ -1,4 +1,4 @@
-const internal = require("stream")
+const mongoose = require('mongoose')
 
 const ReviewSchema = new mongoose.Schema(
 	{
