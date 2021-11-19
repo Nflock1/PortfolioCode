@@ -137,7 +137,6 @@ const Review = require('../models/review')
         .send({longitude: 44.2341, lattitude: 45.2213, radius: 3})
         .set({'x-access-token': responseToken})
         .expect(200)
-        console.log(res.body.data)
         expect(res.body.data.length).toBe(2)
 
         await Restroom.deleteOne({name: 'testroomB'})

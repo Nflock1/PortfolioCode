@@ -102,6 +102,7 @@ userRoutes.delete('/api/rm-user', verifyJWT, async (req, res) => {
 })
 
 //gets user data 
+/*
 userRoutes.get('api/userData', verifyJWT, async (req, res) =>{
 	var ObjectId = require('mongoose').Types.ObjectId;
 	let myquery = { _id: ObjectId(req.user.id)}
@@ -116,8 +117,10 @@ userRoutes.get('api/userData', verifyJWT, async (req, res) =>{
 		res.json({message: "userdata not found in database"});
 	}
 })
+*/
 
 //for updating user data with a new userData object
+/*
 userRoutes.post('/api/update-userData', verifyJWT, async (req, res)=>{
 	var ObjectId = require('mongoose').Types.ObjectId;
 	let myQuery = { _id: ObjectId(req.user.id)}
@@ -132,6 +135,7 @@ userRoutes.post('/api/update-userData', verifyJWT, async (req, res)=>{
 		res.json({message: "Restroom has been sucessfully updated", data: response});
 	})
 })
+*/
 
 //posting a new restroom object to the server
 userRoutes.post('/api/new-RR', verifyJWT, async (req, res) =>{
@@ -200,7 +204,9 @@ userRoutes.delete('/api/rm-RR', verifyJWT, async(req, res) => {
 
 //get specific restroom
 userRoutes.get('/api/restroom', async (req, res) => {
-	let myquery = {address:  req.body.address} || {name: req.body.name};
+	if (typeof address !== 'undefined') myquery = {address:  req.body.address}
+	else myquery = {name: req.body.name};
+
 	const restroom = await Restroom.findOne(myquery).lean()
 	if(!restroom){
 		res.status(400)
@@ -231,10 +237,7 @@ userRoutes.get('/api/near-RR', async (req, res) =>{
 		}	
 		var rNew = docs
 	for(var i = 0; i<docs.length; i++){
-		console.log(((docs[i].longitude-req.body.longitude*(54.5833333), 2)) + Math.pow((docs[i].lattitude-req.body.lattitude)*(54.5833333), 2))
-		console.log(Math.pow(req.body.radius, 2))
 		if(Math.pow((docs[i].longitude-req.body.longitude*(54.5833333), 2)) + Math.pow((docs[i].lattitude-req.body.lattitude)*(54.5833333), 2) > Math.pow(req.body.radius, 2)){
-			console.log("BOITIASDIFHAS")
 			rNew = docs.splice(i, 1)
 		}
 	}
@@ -257,7 +260,7 @@ userRoutes.post('/api/new-review', verifyJWT, async (req, res) =>{
 		genderNeutral, hygiene, changingStation } = req.body
 	
 	const myQuery = {RestroomID: req.RestroomID, UserID: req.UserID}
-	let post = await Review.get("/api/unique-review", myQuery)
+	let post = await Review.findOne(myQuery).lean();
 	if(post) {
 		const rev = await Review.create({
 			name, description, 
@@ -309,16 +312,38 @@ userRoutes.get('/api/unique-review', async (req, res) =>{
 })
 
 //deletes review
+/*
 userRoutes.delete('/api/del-review', verifyJWT, async(req, res) => {
 	//should have something here so only authorized accounts can delete RR
 	//first try to query address, but if address not provided then name
 	let myquery = {RestroomID:  req.body.RestroomID, UserID: req.body.UserID};
-    Restroom.deleteOne(myquery, (err, obj) => {
+	let rest = Restroom.findOne({RestroomID: req.body.RestroomID}).lean()
+	let rev = Review.findOne(myquery).lean()
+	//update restroom with removed review
+	rest.body.clean[0] = rest.body.clean[0]*rest.body.clean[1]-rev.clean
+	rest.body.clean[1]--;
+	rest.body.smell[0] = rest.body.smell[0]*rest.body.smell[1]-rev.smell
+	rest.body.smell[1]--;
+	rest.body.TP[1]--;rest.body.TP[0] = rest.body.TP[0]*rest.body.TP[1]-rev.TP
+	rest.body.TP[1]--;
+	rest.body.safety[0] = rest.body.safety[0]*rest.body.safety[1]-rev.safety
+	rest.body.safety[1]--;
+	rest.body.privacy[0] = rest.body.privacy[0]*rest.body.privacy[1]-rev.privacy
+	rest.body.privacy[1]--;
+	rest.body.busyness[0] = rest.body.busyness[0]*rest.body.busyness[1]-rev.busyness
+	rest.body.busyness[1]--;
+	rest.body.price[0] = rest.body.price+rev.price
+	rest.body.handicap[0] = rest.body.handicap+rev.handicap
+	rest.body.genderNeutral[0] = rest.body.genderNeutral+rev.genderNeutral
+	rest.body.hygeine[0] = rest.body.hygeine+rev.hygeine
+	rest.body.changingStation[0] = rest.body.changingStation+rev.changingStation
+	Review.deleteOne(myquery, (err, obj) => {
         if(err) {
 			res.sendStatus(400);
 			throw err;
 		}
 		res.status(200);
         res.json({message: "1 review successfully deleted", data: obj})
-    })
+    })	
 })
+*/
