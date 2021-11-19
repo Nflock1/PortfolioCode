@@ -9,7 +9,6 @@ import HomeScreen from './screens/HomeScreen';
 import FavoriteScreen from './screens/FavoriteScreen';
 import SubmissionScreen from './screens/SubmissonScreen';
 import SplashScreen from './screens/SplashScreen'
-
 import { AuthContext } from './context';
 
 const Stack = createNativeStackNavigator();
