@@ -1,6 +1,7 @@
 import axios from 'axios';
 import React from 'react';
-import {StyleSheet,View,Text, SafeAreaView, ScrollView, TextInput,TouchableOpacity, Button, Alert} from 'react-native';
+import {StyleSheet,View,Text, SafeAreaView, TextInput,TouchableOpacity, Button, Alert} from 'react-native';
+import { AuthContext } from '../context';
 
 const STYLES = StyleSheet.create({
     buttonSignIn: {
@@ -25,7 +26,39 @@ const STYLES = StyleSheet.create({
 
 });
 
+
+
 function SubmissionScreen({navigation}) {
+    const {signIn} = React.useContext(AuthContext);
+
+    const [name, setName] = React.useState('');
+    const [address, setAddress] = React.useState('');
+    const [description, setDescription] = React.useState('');
+
+
+    const restroomHandler = () => {
+        let errorFlag = false;
+
+        if(!name.trim()){
+            Alert.alert('Name is required field!');
+            errorFlag = true;
+        }
+        if(!address.trim()){
+            Alert.alert('Address is required field!');
+            errorFlag = true;
+        }
+        if(!description.trim()){
+            Alert.alert('Description is required field');
+            errorFlag = true;
+        }
+        if(!errorFlag) {
+
+            Alert.alert('Submission Successful', 'Continue to Home', [
+            {text: 'Continue', onPress: ()=> signIn}
+            ]) 
+        }
+
+    };
 
 
     return(
@@ -42,6 +75,7 @@ function SubmissionScreen({navigation}) {
                     <TextInput
                         placeholder = "Restroom Name"
                         style = {STYLES.textBoxStyle}
+                        onChangeText ={(val) => setName(val)}
                     />
                 </View>
 
@@ -49,6 +83,7 @@ function SubmissionScreen({navigation}) {
                     <TextInput
                         placeholder = "Address"
                         style = {STYLES.textBoxStyle}
+                        onChangeText ={(val) => setAddress(val)}
                     />
                 </View>
 
@@ -57,12 +92,13 @@ function SubmissionScreen({navigation}) {
                         placeholder = "Description"
                         multiline = {true}
                         style = {STYLES.textBoxStyle}
+                        onChangeText ={(val) => setDescription(val)}
                     />
                 </View>
 
                 <View style = {STYLES.buttonSignIn}>
                         <TouchableOpacity onPress={() => Alert.alert('Success!', 'Your submission was submitted', [
-                            {text: 'Go Back Home', onPress: ()=> navigation.navigate('Home')}
+                            {text: 'Go Back Home', onPress: {restroomHandler}}
                         ]) }>
                             <Text style= {{color: 'white',fontWeight: "bold", fontSize: 18}}> 
                                 Submit

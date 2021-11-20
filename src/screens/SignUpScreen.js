@@ -37,8 +37,9 @@ function SignUpScreen({navigation}) {
     const {signUp} = React.useContext(AuthContext);
     const {enterAsGuest} = React.useContext(AuthContext);
 
-    const [newUsername, setNewUser] = React.useState(null); //New Username to be pushed to the backend
-    const [newPassword, setNewPassword] = React.useState(null); //New Password to be pushed to the backend
+    const [newUsername, setNewUser] = React.useState(''); //New Username to be pushed to the backend
+    const [newPassword, setNewPassword] = React.useState(''); //New Password to be pushed to the backend
+    const [confirmPasssord, setConfirmPassword] = React.useState(''); //Used to confirm the password is written correctly
 
     const newUser = {
         newUsername,
@@ -51,6 +52,38 @@ function SignUpScreen({navigation}) {
         .catch(err => {
             console.log(err)
         })
+
+        const SignUpHandler = () =>{
+
+            let errorFlag = false;
+
+            if(!newUsername.trim()){
+                Alert.alert('Username required field!');
+                errorFlag = true;
+            }
+            if(!newPassword.trim()){
+                Alert.alert('Password required field!');
+                errorFlag = true;
+            }
+            if(newPassword != confirmPasssord){
+                Alert.alert('Passwords do not match!');
+                errorFlag = true;
+            }
+            if(!errorFlag) {
+
+                axios
+                .post('http//192.168.1.163:19000/api/register', {newUsername, newPassword})
+                .then(() => console.log('Registered New User'))
+                .catch(err => {
+                    console.log(err)
+                })
+    
+                Alert.alert('Sign In Sucessful', 'Click Continue', [
+                    {text: 'Continue', onPress: () => signUp()}
+                    ])
+            }
+
+        }
 
     return(
 
@@ -108,11 +141,12 @@ function SignUpScreen({navigation}) {
                         borderBottomWidth: 0.5, 
                         flex: 1, 
                         fontSize: 18}} 
-                        secureTextEntry/>
+                        secureTextEntry
+                        onChangeText = {(val) => setConfirmPassword(val)}/>
                     </View>
 
                     <View style = {STYLES.buttonSignIn}>
-                        <TouchableOpacity onPress={() => signUp()}>
+                        <TouchableOpacity onPress={SignUpHandler}>
                             <Text style= {{color: 'white',fontWeight: "bold", fontSize: 18}}> 
                                 Click To Become A Certified Pooper!
                             </Text>

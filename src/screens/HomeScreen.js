@@ -34,6 +34,7 @@ function HomeScreen({navigation}) {
     const [errorMsg, setErrorMsg] = useState(null);
     const [mapRegion, setMapRegion] = useState(null);
     const [restrooms, setRestrooms] = useState(null);
+    const {signOut} = React.useContext(AuthContext);
     useEffect(() => {
         (async () => {
           let { status } = await Location.requestForegroundPermissionsAsync();

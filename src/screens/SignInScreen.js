@@ -43,53 +43,72 @@ function SignInScreen({navigation}) {
     const {signIn} = React.useContext(AuthContext);
     const {enterAsGuest} = React.useContext(AuthContext);
 
-    const [userData, setUserData] = React.useState(
-        {username: "", userNameErrorMessage: "",
-        password: "", passwordErrorMessage: "",}
-    );
+    const [username, setUsername] = React.useState('');
+    const [password, setPassword] = React.useState('');
 
-    // const login = {
-    //     userData.username,
-    //     userPassword
-    // };
-
-    // axios
-    //     .post('/api/login', login)
-    //     .then(() => console.log('Something happened'))
-    //     .catch(err => {
-    //         console.log(err)
-    //     })
+    // const [userData, setUserData] = React.useState(
+    //     {username: "", userNameErrorMessage: "",
+    //     password: "", passwordErrorMessage: "",}
+    // );
 
 
 
 
 
-const formValidation = async () => {
-    //Attempt at checking user input fields
-    let errorFlag = false;
-    let userNameLength = userData.username.length;
-    let userErrorLength = userData.userNameErrorMessage.length;
 
-    if(userNameLength === 0){ //Input is not empty validation
-        errorFlag = true;
-        setUserData({username: "", userNameErrorMessage: "Username is a required field!"});
-    }else if(userData.username.trim().length > 20) { //Max input is 20 chars
-        errorFlag = true;
-        setUserData({username: "", userNameErrorMessage: "Can't be larger than 20 characters" });
-    }
 
-    if(userErrorLength === 0){//Input is not empty validation
-        errorFlag = true;
-        setUserData({password: "", passwordErrorMessage: "Password is a required field!"});
+// const formValidation = async () => {
+//     //Attempt at checking user input fields
+//     let errorFlag = false
 
-    }else if(userData.password.trim().length > 20) { //Max input is 20 chars
-        errorFlag = true;
-        setUserData({password: "", passwordErrorMessage: "Can't be larger than 20 characters"});
-    }
-    if(errorFlag){
-        console.log("errorFlag");
-    }
-};
+//     if(userData.username.trim().length === 0){ //Input is not empty validation
+//         errorFlag = true;
+//         setUserData({username: "", userNameErrorMessage: "Username is a required field!"});
+//     }else if(userData.username.trim().length > 20) { //Max input is 20 chars
+//         errorFlag = true;
+//         setUserData({username: "", userNameErrorMessage: "Can't be larger than 20 characters" });
+//     }
+
+//     if(userData.password.trim().length === 0){//Input is not empty validation
+//         errorFlag = true;
+//         setUserData({password: "", passwordErrorMessage: "Password is a required field!"});
+
+//     }else if(userData.password.trim().length > 20) { //Max input is 20 chars
+//         errorFlag = true;
+//         setUserData({password: "", passwordErrorMessage: "Can't be larger than 20 characters"});
+//     }
+//     if(errorFlag){
+//         console.log("errorFlag");
+//     }
+// };
+
+        //Second Attempt to achieve form validation (It worked, simple for now)
+    const checkInputFields = () => {
+        let errorFlag = false;
+
+        if(!username.trim()){
+            Alert.alert('Username required field!');
+            errorFlag = true;
+        }
+        if(!password.trim()){
+            Alert.alert('Password required field!');
+            errorFlag = true;
+        }
+        if(!errorFlag) {
+
+            axios
+            .post('http//192.168.1.163:19000/api/login', {username, password})
+            .then(() => console.log('Something happened'))
+            .catch(err => {
+                console.log(err)
+            })
+
+            Alert.alert('Sign In Sucessful', 'Click Continue', [
+            {text: 'Continue', onPress: () => signIn()}
+            ])
+        }
+        
+    };
 
 
 
@@ -127,8 +146,8 @@ const formValidation = async () => {
                             borderBottomWidth: 0.5, 
                             flex: 1, 
                             fontSize: 18}}
-                            onChangeText ={(val) => setUserData({username: val})} />
-                            {userData.userNameErrorMessage.length > 0 && <Text style ={STYLES.textDanger}>{userData.userNameErrorMessage}</Text>}
+                            onChangeText ={(val) => setUsername(val)} />
+                            {/* {userData.userNameErrorMessage.length > 0 && <Text style ={STYLES.textDanger}>{userData.userNameErrorMessage}</Text>} */}
                     </View>
                     <View style ={{flexDirection: 'row', marginTop:20}}>
                         <TextInput placeholder= "Password" 
@@ -139,12 +158,12 @@ const formValidation = async () => {
                         flex: 1, 
                         fontSize: 18}} 
                         secureTextEntry
-                        onChangeText ={(val) => setUserData({password: val})}/>
-                        {userData.passwordErrorMessage.length > 0 && <Text style={STYLES.textDanger}>{userData.passwordErrorMessage}</Text>}
+                        onChangeText ={(val) => setPassword(val)}/>
+                        {/* {userData.passwordErrorMessage.length > 0 && <Text style={STYLES.textDanger}>{userData.passwordErrorMessage}</Text>} */}
                     </View>
 
                     <View style = {STYLES.buttonSignIn}>
-                        <TouchableOpacity onPress={() => formValidation()}>
+                        <TouchableOpacity onPress={checkInputFields}>
                             <Text style= {{color: 'white',fontWeight: "bold", fontSize: 18}}> 
                                 Sign In
                             </Text>
