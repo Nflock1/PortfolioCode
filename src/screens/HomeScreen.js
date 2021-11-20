@@ -59,7 +59,7 @@ function HomeScreen({navigation}) {
             radius: 5
         }
         function getRestrooms() {
-            axios.get("http://localhost:5000/api/near-RR", {params})
+            axios.get("/api/near-RR", {params})
                 
                 .then((result) => {
                     setRestrooms(result)

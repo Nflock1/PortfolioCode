@@ -42,5 +42,6 @@
     "superagent-defaults": "^0.1.14",
     "supertest": "^6.1.6"
   },
-  "private": true
+  "private": true,
+  "proxy": "http://localhost:5000"
 }

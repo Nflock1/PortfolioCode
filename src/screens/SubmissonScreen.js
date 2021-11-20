@@ -1,3 +1,4 @@
+import { NavigationHelpersContext } from '@react-navigation/core';
 import axios from 'axios';
 import React from 'react';
 import {StyleSheet,View,Text, SafeAreaView, TextInput,TouchableOpacity, Button, Alert} from 'react-native';
@@ -47,18 +48,19 @@ function SubmissionScreen({navigation}) {
             Alert.alert('Address is required field!');
             errorFlag = true;
         }
-        if(!description.trim()){
-            Alert.alert('Description is required field');
-            errorFlag = true;
+        if(!description.trim()) {
+            Alert.alert('Description is required field!')
+
         }
         if(!errorFlag) {
 
-            Alert.alert('Submission Successful', 'Continue to Home', [
-            {text: 'Continue', onPress: ()=> signIn}
-            ]) 
+            Alert.alert('Submission Accepted', 'Click Continue', [
+            {text: 'Continue', onPress: () => navigation.navigate('Home')}
+            ])
         }
-
+        
     };
+
 
 
     return(
@@ -97,9 +99,7 @@ function SubmissionScreen({navigation}) {
                 </View>
 
                 <View style = {STYLES.buttonSignIn}>
-                        <TouchableOpacity onPress={() => Alert.alert('Success!', 'Your submission was submitted', [
-                            {text: 'Go Back Home', onPress: {restroomHandler}}
-                        ]) }>
+                        <TouchableOpacity onPress={restroomHandler}>
                             <Text style= {{color: 'white',fontWeight: "bold", fontSize: 18}}> 
                                 Submit
                             </Text>

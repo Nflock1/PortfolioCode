@@ -41,17 +41,7 @@ function SignUpScreen({navigation}) {
     const [newPassword, setNewPassword] = React.useState(''); //New Password to be pushed to the backend
     const [confirmPasssord, setConfirmPassword] = React.useState(''); //Used to confirm the password is written correctly
 
-    const newUser = {
-        newUsername,
-        newPassword
-    };
-
-    axios
-        .post('/api/register', newUser)
-        .then(() => console.log('Created new user!'))
-        .catch(err => {
-            console.log(err)
-        })
+    
 
         const SignUpHandler = () =>{
 
@@ -70,14 +60,12 @@ function SignUpScreen({navigation}) {
                 errorFlag = true;
             }
             if(!errorFlag) {
-
                 axios
-                .post('http//192.168.1.163:19000/api/register', {newUsername, newPassword})
-                .then(() => console.log('Registered New User'))
-                .catch(err => {
-                    console.log(err)
+                    .post('/api/register', {newUsername, newPassword})
+                        .then(() => console.log('Registered New User'))
+                            .catch(err => {
+                            console.log(err)
                 })
-    
                 Alert.alert('Sign In Sucessful', 'Click Continue', [
                     {text: 'Continue', onPress: () => signUp()}
                     ])
