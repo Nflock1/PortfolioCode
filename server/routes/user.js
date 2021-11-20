@@ -169,6 +169,7 @@ userRoutes.post('/api/new-RR', verifyJWT, async (req, res) =>{
 	}
 })
 
+/*
 //allows you to update a restroom object by pushing new restroom object for testing
 userRoutes.post('/api/update-RRData', verifyJWT, async (req, res)=>{
 	let myquery = {address:  req.body.address} || {name: req.body.name};
@@ -183,7 +184,7 @@ userRoutes.post('/api/update-RRData', verifyJWT, async (req, res)=>{
 			res.json({message: "Restroom has been sucessfully updated", data: response});
 	})
 })
-
+*/
 
 //deletes RR by address or name
 userRoutes.delete('/api/rm-RR', verifyJWT, async(req, res) => {
@@ -200,20 +201,6 @@ userRoutes.delete('/api/rm-RR', verifyJWT, async(req, res) => {
 		res.status(200);
         res.json({message: "1 restroom successfully deleted", data: obj})
     })
-})
-
-//get specific restroom
-userRoutes.get('/api/restroom', async (req, res) => {
-	if (typeof address !== 'undefined') myquery = {address:  req.body.address}
-	else myquery = {name: req.body.name};
-
-	const restroom = await Restroom.findOne(myquery).lean()
-	if(!restroom){
-		res.status(400)
-		return res.json({message: "restroom not found"})
-	}
-	res.status(200)
-	res.json({message: "restroom has been found", data: restroom})
 })
 
 //get restroom within x square miles
@@ -247,6 +234,7 @@ userRoutes.get('/api/near-RR', async (req, res) =>{
 	
 })
 
+/*
 //post for when a user leaves a new review
 userRoutes.post('/api/new-review', verifyJWT, async (req, res) =>{
 	const rest = await Restroom.get('api/restroom', req.body.RestroomID);
@@ -297,19 +285,8 @@ userRoutes.post('/api/new-review', verifyJWT, async (req, res) =>{
 
 	//create new object when history is a thing
 })
+*/
 
-//need to ensure path security here
-userRoutes.get('/api/unique-review', async (req, res) =>{
-	let myQuery = {
-		RestroomID: req.body.RestroomID,
-		UserID: req.body.UserID
-	}
-	const rest = Restroom.findOne(myQuery).lean()
-	if(!rest){
-		return res.json({data: true})
-	}
-	res.json({data: false})
-})
 
 //deletes review
 /*
@@ -337,6 +314,7 @@ userRoutes.delete('/api/del-review', verifyJWT, async(req, res) => {
 	rest.body.genderNeutral[0] = rest.body.genderNeutral+rev.genderNeutral
 	rest.body.hygeine[0] = rest.body.hygeine+rev.hygeine
 	rest.body.changingStation[0] = rest.body.changingStation+rev.changingStation
+	Restroom.findOneAndUpdate({RestroomID: req.body.RestroomID}, rest)
 	Review.deleteOne(myquery, (err, obj) => {
         if(err) {
 			res.sendStatus(400);
