@@ -61,7 +61,7 @@ function SignUpScreen({navigation}) {
             }
             if(!errorFlag) {
                 axios
-                    .post('/api/register', {newUsername, newPassword})
+                    .post('https://10.0.2.2:5000/api/register', {newUsername, newPassword})
                         .then(() => console.log('Registered New User'))
                             .catch(err => {
                             console.log(err)
