@@ -97,7 +97,7 @@ function SignInScreen({navigation}) {
         if(!errorFlag) {
 
             axios
-            .post('/api/login', {username, password})
+            .post('https://10.0.2.2/api/login', {username, password})
             .then(() => console.log('Something happened'))
             .catch(err => {
                 console.log(err)

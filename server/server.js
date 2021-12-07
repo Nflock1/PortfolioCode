@@ -26,7 +26,7 @@ mongoose.connect(dbURL, {
 	useNewUrlParser: true,
 	useUnifiedTopology: true
 })
-  console.log(`Server is running on port: ${dbURL}`);
+  console.log(`Server is running on port: ${port}`);
 });
 
 module.exports = app;
