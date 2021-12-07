@@ -49,8 +49,8 @@ function SubmissionScreen({navigation}) {
             errorFlag = true;
         }
         if(!description.trim()) {
-            Alert.alert('Description is required field!')
-
+            Alert.alert('Description is required field!');
+            errorFlag = true;
         }
         if(!errorFlag) {
 
