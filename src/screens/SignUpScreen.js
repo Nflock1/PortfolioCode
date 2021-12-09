@@ -60,8 +60,9 @@ function SignUpScreen({navigation}) {
                 errorFlag = true;
             }
             if(!errorFlag) {
+                console.log("Bro, Eat my ass " + newUsername + " ; " + newPassword)
                 axios
-                    .post('https://10.0.2.2:5000/api/register', {newUsername, newPassword})
+                    .post('http://192.168.0.126:5000/api/register', {username: newUsername, password: newPassword})
                         .then(() => console.log('Registered New User'))
                             .catch(err => {
                             console.log(err)
