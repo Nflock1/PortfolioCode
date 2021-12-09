@@ -11,4 +11,4 @@ optimally you would have 2 terminals for the following steps:
 6. if app doesn't load shake phone and select refresh from list
 
 Tests can be performed as follows:
-1. In the terminal, type: "npm start test"
+1. In the terminal, type: "npm test"
