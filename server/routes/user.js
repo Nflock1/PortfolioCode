@@ -17,7 +17,7 @@ module.exports = userRoutes;
 
 userRoutes.post('/api/register', async (req, res) => {
 	const { username, password: plainTextPassword } = req.body
-
+	console.log("BITTTTTTTTTTHHHHSADHFAKSDHFASDH: " + plainTextPassword)
 	const password = await bcrypt.hash(plainTextPassword, 5)
 
 	try {
