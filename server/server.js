@@ -1,6 +1,5 @@
 const express = require("express");
 const routes = require("./routes/user")
-const axios = require("axios")
 
 function createServer() {
   const app = express();

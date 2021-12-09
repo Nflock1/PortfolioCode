@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from '../axios';
 import React from 'react';
 import {StyleSheet,View,Text, SafeAreaView, ScrollView, TextInput,TouchableOpacity, Button, Alert} from 'react-native';
 import { AuthContext } from '../context';
@@ -60,9 +60,8 @@ function SignUpScreen({navigation}) {
                 errorFlag = true;
             }
             if(!errorFlag) {
-                console.log("Bro, Eat my ass " + newUsername + " ; " + newPassword)
                 axios
-                    .post('http://192.168.0.126:5000/api/register', {username: newUsername, password: newPassword})
+                    .post('/api/register', {username: newUsername, password: newPassword})
                         .then(() => console.log('Registered New User'))
                             .catch(err => {
                             console.log(err)

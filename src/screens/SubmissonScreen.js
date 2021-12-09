@@ -1,5 +1,5 @@
 import { NavigationHelpersContext } from '@react-navigation/core';
-import axios from 'axios';
+import axios from '../axios';
 import React from 'react';
 import {StyleSheet,View,Text, SafeAreaView, TextInput,TouchableOpacity, Button, Alert} from 'react-native';
 import { AuthContext } from '../context';
