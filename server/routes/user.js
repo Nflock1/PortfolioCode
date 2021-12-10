@@ -24,8 +24,22 @@ userRoutes.post('/api/register', async (req, res) => {
 			username,
 			password
 		})
-		res.status(200)
-		res.json({ message: 'User has been registered sucessfully', data:response })
+		try{
+			const response2 = await UserData.create({
+				username,
+				favoriteName: []
+			})
+			res.status(200)
+			res.json({ message: 'User has been registered sucessfully'})
+		} catch (error) {
+			res.status(400)
+			// usernames are valid at this point so our errors will always have code = 11000
+			//if (error.code === 11000) {
+				return res.json({ message: 'User Data already exists' })
+			//}
+			//console.log(error.message)
+			//res.json({message: error.message, data:error.name})
+		}
 	} catch (error) {
 		res.status(400)
 		// duplicate key
@@ -120,24 +134,23 @@ userRoutes.delete('/api/rm-user', verifyJWT, async (req, res) => {
 })
 
 //gets user data 
-/*
-userRoutes.get('api/userData', verifyJWT, async (req, res) =>{
-	var ObjectId = require('mongoose').Types.ObjectId;
-	let myquery = { _id: ObjectId(req.user.id)}
+
+userRoutes.get('/api/userData', verifyJWT, async (req, res) =>{
+	let myquery = {username: req.user.username}
 	const userData = await UserData.findOne(myquery, (err, response) =>{
-		if(err) throw err;
-	}).lean()
+		//errors wont be thrown in our use cases
+		//if(err) throw err;
+	}).clone().lean()
 	if(userData){
-	res.status(200)
-	res.json({message: "user sucessfully retreived", data: userData})
+		res.status(200)
+		res.json({message: "user sucessfully retreived", data: userData})
 	} else {
 		res.status(400)
-		res.json({message: "userdata not found in database"});
+		res.json({message: "user data not found in database"});
 	}
-})
-*/
+}) 
 
-//for updating user data with a new userData object
+//for updating user data with a new userData object: should we plan to update a list object by pushing new list or add only one favorite per call
 /*
 userRoutes.post('/api/update-userData', verifyJWT, async (req, res)=>{
 	var ObjectId = require('mongoose').Types.ObjectId;
@@ -250,7 +263,7 @@ userRoutes.get('/api/near-RR', async (req, res) =>{
 		var rNew = docs
 	for(var i = 0; i<docs.length; i++){
 		if(Math.pow((docs[i].longitude-req.body.longitude*(54.5833333), 2)) + Math.pow((docs[i].lattitude-req.body.lattitude)*(54.5833333), 2) > Math.pow(req.body.radius, 2)){
-			rNew = docs.splice(i, 1)
+			rNew = rNew.splice(i, 1)//impossible to fully branch test this statement bc cannot execute when loop condition fails
 		}
 	}
 	res.status(200)
