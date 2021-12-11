@@ -1,7 +1,7 @@
 import axios from 'axios';
 import React, {useEffect, useState} from 'react';
 import MapView, {Marker} from 'react-native-maps';
-import {StyleSheet,View,Text, SafeAreaView, ScrollView, TextInput,TouchableOpacity, Button, Alert, Dimensions} from 'react-native';
+import {StyleSheet,View, Text, SafeAreaView, Button, Dimensions, Alert} from 'react-native';
 import { AuthContext } from '../context';
 import * as Location from 'expo-location';
 
@@ -59,10 +59,10 @@ function HomeScreen({navigation}) {
             radius: 5
         }
         function getRestrooms() {
-            axios.get("https://10.0.2.2/api/near-RR", params)
+            axios.get("https://reqres.in/api/users/2", {params})
                 
                 .then((result) => {
-                    setRestrooms(result)
+                    Alert.alert('Do Something API CALLED');
                 })
                 .catch(err => {
                     console.log("Could not load restrooms.")

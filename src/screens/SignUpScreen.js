@@ -61,7 +61,7 @@ function SignUpScreen({navigation}) {
             }
             if(!errorFlag) {
                 axios
-                    .post('https://10.0.2.2:5000/api/register', {newUsername, newPassword})
+                    .post('https://10.0.2.2/api/login', {newUsername, newPassword})  // Axios call worked with fake Test URL but not with our URL
                         .then(() => console.log('Registered New User'))
                             .catch(err => {
                             console.log(err)
