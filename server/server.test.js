@@ -16,6 +16,7 @@ const Review = require('../models/review')
 const mongoose = require('mongoose')
 const createServer = require("./server")
 const app = createServer()
+const ObjectId = require("mongodb").ObjectId
 
 beforeAll((done) => {
     mongoose.connect(
@@ -68,7 +69,8 @@ afterAll((done => {
         };
         const res = await request(app).post('/api/register').send(user).expect(400)
         expect(res.body.message).toBe('User Data already exists')
-        await UserData.findOneAndDelete({username: "test"})
+        let res2 = await UserData.findOneAndDelete({username: "test"})
+        expect(res2).toBeTruthy()
     })
 
     test('registering with null credentials', async() => {
@@ -88,10 +90,7 @@ afterAll((done => {
             const userID = await User.findOne({username: testUser.username}).lean()
             expect(userID._id).toBeTruthy();
       });
-      test('test getting user data', async() => {
-        const res = await request(app).get('/api/userData').set({'x-access-token': responseToken}).expect(200)
-        expect(res.body.data.username).toBe("tests")
-    })
+  
     test('check that user cannot login with invalid user-pass combo', async() => {
         const testUser = {
             username: 'bogus',
@@ -100,7 +99,7 @@ afterAll((done => {
         const res = await request(app).post('/api/login').send(testUser).expect(400)
     })
 
-    test('check that user cannot login with invalid user-pass combo', async() => {
+    test('check that user cannot login with invalid password', async() => {
         const testUser = {
             username: 'tests',
             password: 'bogus-password'
@@ -110,14 +109,18 @@ afterAll((done => {
 
     //user Data tests
    
+    test('test getting user data', async() => {
+        const res = await request(app).get('/api/userData').set({'x-access-token': responseToken}).expect(200)
+        expect(res.body.data.username).toBe("tests")
+    })
 
-    /* test('test getting user data that doesnt exist', async() => {
+    test('test getting user data that doesnt exist', async() => {
         let copy = await UserData.findOneAndDelete({username:"tests"})
         const res = await request(app).get('/api/userData').set({'x-access-token': responseToken}).expect(400)
-        expect(res).toBeFalsy()
-        await UserData.create(JSON.stringify(copy))
+        expect(res.body.message).toBe("user data not found in database")
+        //await UserData.create(copy)
 
-    }) */
+    })
 
     //authentication tests
     test('bad authentication check', async() => {

@@ -3,13 +3,13 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-const CircularJSON = require('circular-json');
+//const CircularJSON = require('circular-json');
 const User = require('../../models/user');
 const UserData = require('../../models/userData');
 const Restroom = require('../../models/restroom')
 const Review = require('../../models/review')
 const userRoutes = express.Router();
-const util = require('util')
+//const util = require('util')
 module.exports = userRoutes;
 
 //may need to revise this string
@@ -135,38 +135,33 @@ userRoutes.delete('/api/rm-user', verifyJWT, async (req, res) => {
 
 //gets user data 
 
-userRoutes.get('/api/userData', verifyJWT, async (req, res) =>{
-	let myquery = {username: req.user.username}
-	const userData = await UserData.findOne(myquery, (err, response) =>{
+userRoutes.get('/api/userData', verifyJWT, async (req, res) =>{ 
+	UserData.findOne({username: req.user.username}, (err, doc) =>{
 		//errors wont be thrown in our use cases
 		//if(err) throw err;
-	}).clone().lean()
-	if(userData){
-		res.status(200)
-		res.json({message: "user sucessfully retreived", data: userData})
-	} else {
-		res.status(400)
-		res.json({message: "user data not found in database"});
-	}
+		if(doc){
+			res.status(200)
+			res.json({message: "user sucessfully retreived", data: doc})
+		} else {
+			res.status(400)
+			res.json({message: "user data not found in database"});
+		}
+	}).lean()//clone
 }) 
 
 //for updating user data with a new userData object: should we plan to update a list object by pushing new list or add only one favorite per call
-/*
+
 userRoutes.post('/api/update-userData', verifyJWT, async (req, res)=>{
-	var ObjectId = require('mongoose').Types.ObjectId;
-	let myQuery = { _id: ObjectId(req.user.id)}
-	// may need to make this a mongoose object/schema
-	let newData = req.body;
-	UserData.updateOne(myQuery, newData , (err, response) =>{
+	UserData.save(req.body , (err, doc) =>{
 		if(err) {
 			res.sendStatus(400);
 			throw err;
 		}
 		res.status(200)
-		res.json({message: "Restroom has been sucessfully updated", data: response});
+		res.json({message: "Restroom has been sucessfully updated", data: doc});
 	})
 })
-*/
+
 
 //posting a new restroom object to the server
 userRoutes.post('/api/new-RR', verifyJWT, async (req, res) =>{
