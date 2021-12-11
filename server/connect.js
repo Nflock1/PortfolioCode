@@ -18,7 +18,9 @@ async function getIP() {
             }
         }
     }
-    let data = {ip: results["Wi-Fi"][0]}
+    let data;
+    if (typeof results["Wi-Fi"] !== 'undefined') data = {ip: results["Wi-Fi"][0]}
+	else data = {ip: results["Ethernet"][0]};
     fs.writeFile("../src/ip.json", JSON.stringify(data), (err) => {
 	    if(err){console.log(err.name + ": " + err.message)}
     })
