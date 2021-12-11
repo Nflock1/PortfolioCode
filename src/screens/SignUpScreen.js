@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from '../axios';
 import React from 'react';
 import {StyleSheet,View,Text, SafeAreaView, ScrollView, TextInput,TouchableOpacity, Button, Alert} from 'react-native';
 import { AuthContext } from '../context';
@@ -61,7 +61,7 @@ function SignUpScreen({navigation}) {
             }
             if(!errorFlag) {
                 axios
-                    .post('https://10.0.2.2/api/login', {newUsername, newPassword})  // Axios call worked with fake Test URL but not with our URL
+                    .post('/api/register', {username: newUsername, password: newPassword})
                         .then(() => console.log('Registered New User'))
                             .catch(err => {
                             console.log(err)

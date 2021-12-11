@@ -1,6 +1,6 @@
 import React from 'react';
 import {StyleSheet,View,Text, SafeAreaView, ScrollView, TextInput,TouchableOpacity, Alert} from 'react-native';
-import axios from 'axios';
+import axios from '../axios';
 import { AuthContext } from '../context';
 
 const STYLES = StyleSheet.create({
@@ -97,7 +97,7 @@ function SignInScreen({navigation}) {
         if(!errorFlag) {
 
             axios
-            .post('https://10.0.2.2/api/login', {username, password})
+            .post('/api/login', {username: username, password: password})
             .then(() => console.log('Something happened'))
             .catch(err => {
                 console.log(err)

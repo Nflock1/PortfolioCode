@@ -3,13 +3,13 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-const CircularJSON = require('circular-json');
+//const CircularJSON = require('circular-json');
 const User = require('../../models/user');
 const UserData = require('../../models/userData');
 const Restroom = require('../../models/restroom')
 const Review = require('../../models/review')
 const userRoutes = express.Router();
-const util = require('util')
+//const util = require('util')
 module.exports = userRoutes;
 
 //may need to revise this string
@@ -17,7 +17,6 @@ module.exports = userRoutes;
 
 userRoutes.post('/api/register', async (req, res) => {
 	const { username, password: plainTextPassword } = req.body
-	console.log("BITTTTTTTTTTHHHHSADHFAKSDHFASDH: " + plainTextPassword)
 	const password = await bcrypt.hash(plainTextPassword, 5)
 
 	try {
@@ -25,8 +24,22 @@ userRoutes.post('/api/register', async (req, res) => {
 			username,
 			password
 		})
-		res.status(200)
-		res.json({ message: 'User has been registered sucessfully', data:response })
+		try{
+			const response2 = await UserData.create({
+				username,
+				favoriteName: []
+			})
+			res.status(200)
+			res.json({ message: 'User has been registered sucessfully'})
+		} catch (error) {
+			res.status(400)
+			// usernames are valid at this point so our errors will always have code = 11000
+			//if (error.code === 11000) {
+				return res.json({ message: 'User Data already exists' })
+			//}
+			//console.log(error.message)
+			//res.json({message: error.message, data:error.name})
+		}
 	} catch (error) {
 		res.status(400)
 		// duplicate key
@@ -121,40 +134,34 @@ userRoutes.delete('/api/rm-user', verifyJWT, async (req, res) => {
 })
 
 //gets user data 
-/*
-userRoutes.get('api/userData', verifyJWT, async (req, res) =>{
-	var ObjectId = require('mongoose').Types.ObjectId;
-	let myquery = { _id: ObjectId(req.user.id)}
-	const userData = await UserData.findOne(myquery, (err, response) =>{
-		if(err) throw err;
-	}).lean()
-	if(userData){
-	res.status(200)
-	res.json({message: "user sucessfully retreived", data: userData})
-	} else {
-		res.status(400)
-		res.json({message: "userdata not found in database"});
-	}
-})
-*/
 
-//for updating user data with a new userData object
-/*
+userRoutes.get('/api/userData', verifyJWT, async (req, res) =>{ 
+	UserData.findOne({username: req.user.username}, (err, doc) =>{
+		//errors wont be thrown in our use cases
+		//if(err) throw err;
+		if(doc){
+			res.status(200)
+			res.json({message: "user sucessfully retreived", data: doc})
+		} else {
+			res.status(400)
+			res.json({message: "user data not found in database"});
+		}
+	}).lean()//clone
+}) 
+
+//for updating user data with a new userData object: should we plan to update a list object by pushing new list or add only one favorite per call
+
 userRoutes.post('/api/update-userData', verifyJWT, async (req, res)=>{
-	var ObjectId = require('mongoose').Types.ObjectId;
-	let myQuery = { _id: ObjectId(req.user.id)}
-	// may need to make this a mongoose object/schema
-	let newData = req.body;
-	UserData.updateOne(myQuery, newData , (err, response) =>{
+	UserData.save(req.body , (err, doc) =>{
 		if(err) {
 			res.sendStatus(400);
 			throw err;
 		}
 		res.status(200)
-		res.json({message: "Restroom has been sucessfully updated", data: response});
+		res.json({message: "Restroom has been sucessfully updated", data: doc});
 	})
 })
-*/
+
 
 //posting a new restroom object to the server
 userRoutes.post('/api/new-RR', verifyJWT, async (req, res) =>{
@@ -251,7 +258,7 @@ userRoutes.get('/api/near-RR', async (req, res) =>{
 		var rNew = docs
 	for(var i = 0; i<docs.length; i++){
 		if(Math.pow((docs[i].longitude-req.body.longitude*(54.5833333), 2)) + Math.pow((docs[i].lattitude-req.body.lattitude)*(54.5833333), 2) > Math.pow(req.body.radius, 2)){
-			rNew = docs.splice(i, 1)
+			rNew = rNew.splice(i, 1)//impossible to fully branch test this statement bc cannot execute when loop condition fails
 		}
 	}
 	res.status(200)

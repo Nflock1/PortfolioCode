@@ -3,8 +3,8 @@ const mongoose = require('mongoose')
 
 const UserDataSchema = new mongoose.Schema(
 	{
-		userID: { type: String, required: true, unique: true },
-		favoriteID: { type: [], required: true },
+		username: { type: String, required: true, unique: true },
+		favorites: { type: [], required: true }//restroom names
 	},
 	{ collection: 'userData' }
 )

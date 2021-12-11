@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from '../axios';
 import React, {useEffect, useState} from 'react';
 import MapView, {Marker} from 'react-native-maps';
 import {StyleSheet,View, Text, SafeAreaView, Button, Dimensions, Alert} from 'react-native';
@@ -59,7 +59,7 @@ function HomeScreen({navigation}) {
             radius: 5
         }
         function getRestrooms() {
-            axios.get("https://reqres.in/api/users/2", {params})
+            axios.get("/api/near-RR", params)
                 
                 .then((result) => {
                     Alert.alert('Do Something API CALLED');
