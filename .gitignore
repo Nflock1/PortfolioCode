@@ -1,7 +1,6 @@
 node_modules/
 .expo/
 coverage/
-src/ip.json
 dist/
 npm-debug.*
 *.jks
