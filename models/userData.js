@@ -4,7 +4,8 @@ const mongoose = require('mongoose')
 const UserDataSchema = new mongoose.Schema(
 	{
 		username: { type: String, required: true, unique: true },
-		favorites: { type: [], required: true }//restroom names
+		favorites: { type: [String], required: true }, //restroom names
+		history: {type: [String], required: true }
 	},
 	{ collection: 'userData' }
 )

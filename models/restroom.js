@@ -3,7 +3,7 @@ const mongoose = require('mongoose')
 const Restroom = new mongoose.Schema(
 	{
 		name: { type: String, required: true, unique: true},
-        description: { type: String},
+        description: { type: String, requied: true},
         address: { type: String, required: true, unique: true },
         longitude: { type: Number, required: true },
         lattitude: { type: Number, required: true },
@@ -17,7 +17,9 @@ const Restroom = new mongoose.Schema(
         handicap: {type: Number, required: true},
         genderNeutral: {type: Number, required: true},
         hygiene: {type: Number, required: true},
-        changingStation: {type: Number, required: true}
+        changingStation: {type: Number, required: true},
+        flags: {type: Number, required: true},
+        flaggedBy: {type: [String], required: true}
 	},
 	{ collection: 'restrooms' }
 )

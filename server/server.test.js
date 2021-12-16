@@ -47,6 +47,10 @@ afterAll((done => {
             expect(userver.username).toBe(user.username)
             expect(userver.password).toBeTruthy()
             expect(userver.password).not.toBe(user.password)
+            UserData.findOne({username: user.username}, (err,doc) => {
+                expect(err).toBeFalsy()
+                expect(doc.favorites).toMatchObject([])
+            })
       });
    
     test('cant register with duplicate username', async() => {
@@ -118,8 +122,35 @@ afterAll((done => {
         let copy = await UserData.findOneAndDelete({username:"tests"})
         const res = await request(app).get('/api/userData').set({'x-access-token': responseToken}).expect(400)
         expect(res.body.message).toBe("user data not found in database")
-        //await UserData.create(copy)
+        const res2 = await UserData.insertMany(copy)
+        expect(res2).toBeTruthy()
+    })
 
+    test('updating user data sucessfully', async() => {
+        UserData.findOne({username: "tests"}, async(err, doc)=>{
+            expect(err).toBeFalsy()
+            doc.favorites = ["testroom", "testroom2"]
+            const res = await request(app).post('/api/update-userData').send(doc._doc).set({'x-access-token': responseToken}).expect(200)
+            UserData.findOne({username: "tests"}, (err,doc) => {
+                expect(doc.favorites).toMatchObject(["testroom", "testroom2"])
+            }).clone()
+            res2 = await UserData.findOneAndUpdate({username: "tests"}, {favorites:[]})
+            expect(res2).toBeTruthy()
+        }).clone()     
+    })
+
+    test("updating user data that isn't the logged in user's", async() => {
+        await UserData.create({
+            username: "nacho",
+            favorites: []
+        })
+        await UserData.findOne({username: "nacho"}, async(err, doc)=>{
+            expect(err).toBeFalsy()
+            console.log(doc._doc)
+            doc.favorites = ["testroom", "testroom2"]
+            const res = await request(app).post('/api/update-userData').send(doc._doc).set({'x-access-token': responseToken}).expect(400)
+            doc.favorites = []
+        }).clone()     
     })
 
     //authentication tests
@@ -154,7 +185,7 @@ afterAll((done => {
     //restroom tests
     test('no restrooms nearby', async() => {
         let res = await request(app).get('/api/near-RR')
-        .send({longitude: 44.2341, lattitude: 45.2213, radius: 3})
+        .query({longitude: 44.2341, lattitude: 45.2213, radius: 3})
         .set({'x-access-token': responseToken})
         .expect(200)
 
@@ -166,7 +197,7 @@ afterAll((done => {
             name: "testroom", description: "this is a test", address: "1234 mound street", longitude: 44.2341,
 		    lattitude: 45.2213, clean: [0,0], smell: [0,0], TP: [0,0], safety: [0,0], 
 		    privacy: [0,0], busyness: [0,0], price: 0, handicap: 0, 
-		    genderNeutral: 0, hygiene: 0, changingStation: 0
+		    genderNeutral: 0, hygiene: 0, changingStation: 0, flags: 0, flaggedBy: []
         }
 
          await request(app).post('/api/new-RR').send(req).set({'x-access-token': responseToken}).expect(200) 
@@ -197,8 +228,7 @@ afterAll((done => {
             let res = await request(app).post('/api/new-RR').send({}).set({'x-access-token': responseToken}).expect(400)
             expect(res.body.data).toBe("ValidationError")
         } catch(err){
-            console.log(err.name + ": " + err.message)
-            expect(err.name).toBe("Should not be any error")
+            expect(err).toBeFalsy()
         }
     })
 
@@ -207,7 +237,7 @@ afterAll((done => {
             name: "testroom1", address: "12345 mound street", longitude: 44.2341,
 		    lattitude: 45.2213, clean: [0,0], smell: [0,0], TP: [0,0], safety: [0,0], 
 		    privacy: [0,0], busyness: [0,0], price: 0, handicap: 0, 
-		    genderNeutral: 0, hygiene: 0, changingStation: 0
+		    genderNeutral: 0, hygiene: 0, changingStation: 0, flags:0, flaggedBy:[]
         }
 
          let res = await request(app).post('/api/new-RR').send(req).set({'x-access-token': responseToken}).expect(200) 
@@ -230,7 +260,7 @@ afterAll((done => {
             name: "testroom1", address: "12345 mound street", longitude: 44.2341,
 		    lattitude: 45.2213, clean: [0,0], smell: [0,0], TP: [0,0], safety: [0,0], 
 		    privacy: [0,0], busyness: [0,0], price: 0, handicap: 0, 
-		    genderNeutral: 0, hygiene: 0, changingStation: 0
+		    genderNeutral: 0, hygiene: 0, changingStation: 0, flags: 0, flaggedBy: []
         }
         let res0 = await Restroom.create(req)
         expect(res0).toBeTruthy()
@@ -250,7 +280,7 @@ afterAll((done => {
             name: "testroom", description: "this is a test", address: "1234 mound street", longitude: 44.2341,
 		    lattitude: 45.2213, clean: [0,0], smell: [0,0], TP: [0,0], safety: [0,0], 
 		    privacy: [0,0], busyness: [0,0], price: 0, handicap: 0, 
-		    genderNeutral: 0, hygiene: 0, changingStation: 0
+		    genderNeutral: 0, hygiene: 0, changingStation: 0, flags:0, flaggedBy: []
         })
         let req = {name: "testroom"}
         const res = await request(app).delete('/api/rm-RR').send(req).set({'x-access-token': responseToken}).expect(200)
@@ -264,11 +294,11 @@ afterAll((done => {
             name: "testroom1", address: "1234moundstreet", longitude: 44.2341,
 		    lattitude: 45.2213, clean: [0,0], smell: [0,0], TP: [0,0], safety: [0,0], 
 		    privacy: [0,0], busyness: [0,0], price: 0, handicap: 0, 
-		    genderNeutral: 0, hygiene: 0, changingStation: 0
+		    genderNeutral: 0, hygiene: 0, changingStation: 0, flags: 0, flaggedBy:[]
         })
         let req = {address: "1234moundstreet"}
         const res = await request(app).delete('/api/rm-RR').send(req).set({'x-access-token': responseToken}).expect(200)
-        const res2 = await Restroom.findOne(req).lean()
+        const res2 = await Restroom.findOneAndDelete(req).lean()
         expect(res.body.data.deletedCount).toBe(1)
         expect(res2).toBeFalsy()
     })
@@ -277,6 +307,22 @@ afterAll((done => {
         let req = {name: "testroom"}
         res = await request(app).delete('/api/rm-RR').send(req).set({'x-access-token': responseToken}).expect(200)
         expect(res.body.data.deletedCount).toBe(0)
+    })
+
+    //favorites tests
+    test('update favorites when restroom is removed', async() => {
+        await Restroom.create({
+            name: "testroom", address: "1234moundstreet", longitude: 44.2341,
+		    lattitude: 45.2213, clean: [0,0], smell: [0,0], TP: [0,0], safety: [0,0], 
+		    privacy: [0,0], busyness: [0,0], price: 0, handicap: 0, 
+		    genderNeutral: 0, hygiene: 0, changingStation: 0, flags: 0, flaggedBy:[]
+        })
+        await UserData.findOneAndUpdate({username: 'tests'}, {favorites: ["testroom"]})
+        await request(app).delete('/api/rm-RR', async (res) => {
+            let room = await UserData.findOne({username: "tests"})
+            expect(room.favorites).toMatchObject([])
+        }).send({name: "testroom"}).set({'x-access-token': responseToken}).expect(200)
+        await Restroom.findOneAndDelete({name: "testroom"})
     })
 
     //user tests
@@ -294,13 +340,14 @@ afterAll((done => {
         expect(res2).toBeFalsy()
     })
 
+
     //unauthenticated route tests
     test('get multiple restrooms', async() => {
         let req = {
             name: "testroomB", description: "this is a test", address: "12318 mound street", longitude: 44.2341,
 		    lattitude: 45.2213, clean: [0,0], smell: [0,0], TP: [0,0], safety: [0,0], 
 		    privacy: [0,0], busyness: [0,0], price: 0, handicap: 0, 
-		    genderNeutral: 0, hygiene: 0, changingStation: 0
+		    genderNeutral: 0, hygiene: 0, changingStation: 0, flags: 0, flaggedBy:[]
         }
         await Restroom.create(req)
         req.name = "testroomC"
@@ -320,7 +367,7 @@ afterAll((done => {
         await Restroom.create(req)
 
         let res = await request(app).get('/api/near-RR')
-        .send({longitude: 44.2341, lattitude: 45.2213, radius: 3})
+        .query({longitude: 44.2341, lattitude: 45.2213, radius: 3})
         .set({'x-access-token': responseToken})
         .expect(200)
         expect(res.body.data.length).toBe(2)
