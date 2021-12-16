@@ -241,12 +241,10 @@ userRoutes.delete('/api/rm-RR', verifyJWT, async(req, res) => {
 //no verify because geusts can do this
 //make radius
 userRoutes.get('/api/near-RR', async (req, res) =>{
-
 	var long1 = req.body.longitude - req.body.radius/(54.5833333)
 	var long2 = req.body.longitude + req.body.radius/(54.5833333)
 	var lat1 = req.body.lattitude - req.body.radius/(54.5833333)
 	var lat2 = req.body.lattitude + req.body.radius/(54.5833333)
-
 	let myquery = {longitude:{$gte: long1, $lte: long2}, lattitude: {$gte: lat1, $lte: lat2}}
 	Restroom.find(myquery, (err, docs) => {
 		/////////// emitted for code coverage
