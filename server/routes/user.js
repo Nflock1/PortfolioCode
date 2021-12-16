@@ -152,14 +152,15 @@ userRoutes.get('/api/userData', verifyJWT, async (req, res) =>{
 //for updating user data with a new userData object: should we plan to update a list object by pushing new list or add only one favorite per call
 
 userRoutes.post('/api/update-userData', verifyJWT, async (req, res)=>{
-	UserData.save(req.body , (err, doc) =>{
-		if(err) {
-			res.sendStatus(400);
-			throw err;
-		}
-		res.status(200)
-		res.json({message: "Restroom has been sucessfully updated", data: doc});
-	})
+	if(req.user.username == req.body.username){
+		UserData.findOneAndUpdate({username: req.user.username}, req.body , (err, doc) =>{
+			res.status(200)
+			res.json({message: "Restroom has been sucessfully updated", data: doc});
+		})
+	} else {
+		res.status(400)
+		res.json({message: "user data does not belong to logged in user"})
+	}
 })
 
 
@@ -168,7 +169,7 @@ userRoutes.post('/api/new-RR', verifyJWT, async (req, res) =>{
 	const { name, description, address, longitude,
 		 lattitude, clean, smell, TP, safety, 
 		 privacy, busyness, price, handicap, 
-		 genderNeutral, hygiene, changingStation } = req.body
+		 genderNeutral, hygiene, changingStation, flags, flaggedBy } = req.body
 
 	try {
 		const response = await Restroom.create({
@@ -179,7 +180,7 @@ userRoutes.post('/api/new-RR', verifyJWT, async (req, res) =>{
 			privacy, busyness, 
 			price, handicap, 
 			genderNeutral, hygiene, 
-			changingStation
+			changingStation, flags, flaggedBy
 		})
 
 		res.status(200)
@@ -196,22 +197,35 @@ userRoutes.post('/api/new-RR', verifyJWT, async (req, res) =>{
 	}
 })
 
-/*
-//allows you to update a restroom object by pushing new restroom object for testing
-userRoutes.post('/api/update-RRData', verifyJWT, async (req, res)=>{
-	let myquery = {address:  req.body.address} || {name: req.body.name};
-	// may need to make this a mongoose object/schema
-	let newData = req.body;
-	UserData.updateOne(myquery, newData , (err, response) =>{
-		if(err) {
-			res.status(400);
-			throw err;
-		}
+
+//no need to allow updating of entire restroom field
+/* userRoutes.post('/api/flag', verifyJWT, async(req, res) => {
+	Restroom.findOne(req.body.name, (err, doc) => {
+		if(doc){
+			doc.flags++
+			doc.flaggedBy.push(req.user.username)
 			res.status(200)
-			res.json({message: "Restroom has been sucessfully updated", data: response});
+			res.json({message: "restroom successfully flagged", data: doc})
+		} else{
+			res.status(400)
+			res.status({message: "restroom not found"})
+		}
 	})
 })
-*/
+
+userRoutes.post('/api/unflag', verifyJWT, async(req, res) => {
+	Restroom.findOne(req.body.name, (err, doc) => {
+		if(doc){
+			doc.flags--
+			doc.flaggedBy.splice(doc.flaggedBy.indexOf(req.user.username), 1)
+			res.status(200)
+			res.json({message: "restroom successfully unflagged", data: doc})
+		} else{
+			res.status(400)
+			res.status({message: "restroom not found"})
+		}
+	})
+}) */
 
 //deletes RR by address or name
 userRoutes.delete('/api/rm-RR', verifyJWT, async(req, res) => {
@@ -220,7 +234,7 @@ userRoutes.delete('/api/rm-RR', verifyJWT, async(req, res) => {
 	let myquery = {}
 	if (typeof req.body.address !== 'undefined') myquery = {address:  req.body.address}
 	else myquery = {name: req.body.name};
-    Restroom.deleteOne(myquery, (err, obj) => {
+    Restroom.deleteOne(myquery, (err, doc) => {
         
 		////////////////// emitted for code coverage
 		/*if(err) {
@@ -230,9 +244,18 @@ userRoutes.delete('/api/rm-RR', verifyJWT, async(req, res) => {
 		}*/
 		//////////////////
 
-		res.status(200);
-        res.json({message: "1 restroom successfully deleted", data: obj})
-    })
+		//update favorite data of users in database would be more efficient to implement on front end
+		//should just delete the restroom from favorites if it cannot be found with a get request
+		UserData.find({favorites: req.body.name}, (err, docs) => {
+			for(let j = 0; j< docs.length;j++){//new routes
+						docs[j].favorites.splice(docs[j].favorites.indexOf(req.body.name), 1)
+						UserData.findOneAndUpdate({username: docs[j].username}, docs[j], (err, doc)=>{})
+						UserData.findOne({username: docs[j].username})
+			}
+			res.status(200);
+        	res.json({message: req.body.name + " has been successfully deleted", data: doc})
+		})
+	})
 })
 
 //get restroom within x square miles
@@ -241,12 +264,16 @@ userRoutes.delete('/api/rm-RR', verifyJWT, async(req, res) => {
 //no verify because geusts can do this
 //make radius
 userRoutes.get('/api/near-RR', async (req, res) =>{
-	var long1 = req.body.longitude - req.body.radius/(54.5833333)
-	var long2 = req.body.longitude + req.body.radius/(54.5833333)
-	var lat1 = req.body.lattitude - req.body.radius/(54.5833333)
-	var lat2 = req.body.lattitude + req.body.radius/(54.5833333)
+
+	var long1 = parseFloat(req.query.longitude) - parseFloat(req.query.radius)/(54.5833333)
+	var long2 = parseFloat(req.query.longitude) + parseFloat(req.query.radius)/(54.5833333)
+	var lat1 = parseFloat(req.query.lattitude) - parseFloat(req.query.radius)/(54.5833333)
+	var lat2 = parseFloat(req.query.lattitude) + parseFloat(req.query.radius)/(54.5833333)
 	let myquery = {longitude:{$gte: long1, $lte: long2}, lattitude: {$gte: lat1, $lte: lat2}}
 	Restroom.find(myquery, (err, docs) => {
+		if(err){
+			throw err;
+		}
 		/////////// emitted for code coverage
 		/* if(err) {
 			console.log(error.message)
@@ -254,13 +281,13 @@ userRoutes.get('/api/near-RR', async (req, res) =>{
 			res.json({message: error.message, data:error.name})
 		} */////////
 		var rNew = docs
-	for(var i = 0; i<docs.length; i++){
-		if(Math.pow((docs[i].longitude-req.body.longitude*(54.5833333), 2)) + Math.pow((docs[i].lattitude-req.body.lattitude)*(54.5833333), 2) > Math.pow(req.body.radius, 2)){
-			rNew = rNew.splice(i, 1)//impossible to fully branch test this statement bc cannot execute when loop condition fails
+		for(var i = 0; i<docs.length; i++){
+			if(Math.pow((docs[i].longitude-parseFloat(req.query.longitude)*(54.5833333), 2)) + Math.pow((docs[i].lattitude-parseFloat(req.query.lattitude))*(54.5833333), 2) > Math.pow(parseFloat(req.query.radius), 2)){
+				rNew = rNew.splice(i, 1)//impossible to fully branch test this statement bc cannot execute when loop condition fails
+			}
 		}
-	}
-	res.status(200)
-	res.json({message: "restrooms sucessfully found", data: rNew})
+		res.status(200)
+		res.json({message: "restrooms sucessfully found", data: rNew})
 	});
 	
 })
