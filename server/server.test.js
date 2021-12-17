@@ -31,6 +31,14 @@ afterAll((done => {
 		mongoose.connection.close(() => done())
 	})
 }))
+
+afterEach((done => {
+    Restroom.deleteMany({}, (err,doc) => {
+        Review.deleteMany({}, (err,doc) =>{
+            done()
+        })
+    })
+}))
     //registration tests
     test('user creation', async() => {
         const user = {
@@ -72,8 +80,8 @@ afterAll((done => {
             password: "testing"
         };
         const res = await request(app).post('/api/register').send(user).expect(400)
-        expect(res.body.message).toBe('User Data already exists')
         let res2 = await UserData.findOneAndDelete({username: "test"})
+        expect(res.body.message).toBe('User Data already exists')
         expect(res2).toBeTruthy()
     })
 
@@ -158,7 +166,7 @@ afterAll((done => {
         const req = {
             name: "testroom1", address: "12345 mound street", longitude: 44.2341,
 		    lattitude: 45.2213, clean: [0,0], smell: [0,0], TP: [0,0], safety: [0,0], 
-		    privacy: [0,0], busyness: [0,0], price: 0, handicap: 0, 
+		    privacy: [0,0], busyness: [0,0], pay: 0, handicap: 0, 
 		    genderNeutral: 0, hygiene: 0, changingStation: 0
         }
 
@@ -172,7 +180,7 @@ afterAll((done => {
         const req = {
             name: "testroom1", address: "12345 mound street", longitude: 44.2341,
 		    lattitude: 45.2213, clean: [0,0], smell: [0,0], TP: [0,0], safety: [0,0], 
-		    privacy: [0,0], busyness: [0,0], price: 0, handicap: 0, 
+		    privacy: [0,0], busyness: [0,0], pay: 0, handicap: 0, 
 		    genderNeutral: 0, hygiene: 0, changingStation: 0
         }
 
@@ -196,7 +204,7 @@ afterAll((done => {
         const req = {
             name: "testroom", description: "this is a test", address: "1234 mound street", longitude: 44.2341,
 		    lattitude: 45.2213, clean: [0,0], smell: [0,0], TP: [0,0], safety: [0,0], 
-		    privacy: [0,0], busyness: [0,0], price: 0, handicap: 0, 
+		    privacy: [0,0], busyness: [0,0], pay: 0, handicap: 0, 
 		    genderNeutral: 0, hygiene: 0, changingStation: 0, flags: 0, flaggedBy: []
         }
 
@@ -217,11 +225,10 @@ afterAll((done => {
             expect(data.TP).toBe(req.TP)
             expect(data.safety).toBe(req.safety)
             expect(data.privacy).toBe(req.privacy)
-            expect(data.price).toBe(req.price)
+            expect(data.pay).toBe(req.pay)
             expect(data.busyness).toBe(req.busyness)
             */
-        await Restroom.findOneAndDelete({name: req.name})
-    })
+        })
 
     test("creating null restroom", async() =>{
         try{
@@ -236,7 +243,7 @@ afterAll((done => {
         const req = {
             name: "testroom1", address: "12345 mound street", longitude: 44.2341,
 		    lattitude: 45.2213, clean: [0,0], smell: [0,0], TP: [0,0], safety: [0,0], 
-		    privacy: [0,0], busyness: [0,0], price: 0, handicap: 0, 
+		    privacy: [0,0], busyness: [0,0], pay: 0, handicap: 0, 
 		    genderNeutral: 0, hygiene: 0, changingStation: 0, flags:0, flaggedBy:[]
         }
 
@@ -250,16 +257,13 @@ afterAll((done => {
             expect(data.genderNeutral).toBe(req.genderNeutral)
             expect(data.hygiene).toBe(req.hygiene)
             expect(data.changingStation).toBe(req.changingStation)
-
-        let res2 = await Restroom.findOneAndDelete({name: "testroom1"})
-        expect(res2).toBeTruthy()
     })
 
     test('creating duplicate restroom', async() => {
         const req = {
             name: "testroom1", address: "12345 mound street", longitude: 44.2341,
 		    lattitude: 45.2213, clean: [0,0], smell: [0,0], TP: [0,0], safety: [0,0], 
-		    privacy: [0,0], busyness: [0,0], price: 0, handicap: 0, 
+		    privacy: [0,0], busyness: [0,0], pay: 0, handicap: 0, 
 		    genderNeutral: 0, hygiene: 0, changingStation: 0, flags: 0, flaggedBy: []
         }
         let res0 = await Restroom.create(req)
@@ -269,17 +273,14 @@ afterAll((done => {
         let res = await request(app).post('/api/new-RR').send(req).set({'x-access-token': responseToken}).expect(400)
         expect(res.body.message).toBe("Restroom already exists") 
         let data = await Restroom.findOne({name: req.name}).lean()
-            expect(data.lattitude).toBe(45.2213)
-
-        let res2 = await Restroom.findOneAndDelete({name: "testroom1"})
-        expect(res2).toBeTruthy()
+        expect(data.lattitude).toBe(45.2213)
     })
 
     test('removing restroom by name', async() =>{
         await Restroom.create({
             name: "testroom", description: "this is a test", address: "1234 mound street", longitude: 44.2341,
 		    lattitude: 45.2213, clean: [0,0], smell: [0,0], TP: [0,0], safety: [0,0], 
-		    privacy: [0,0], busyness: [0,0], price: 0, handicap: 0, 
+		    privacy: [0,0], busyness: [0,0], pay: 0, handicap: 0, 
 		    genderNeutral: 0, hygiene: 0, changingStation: 0, flags:0, flaggedBy: []
         })
         let req = {name: "testroom"}
@@ -293,7 +294,7 @@ afterAll((done => {
         await Restroom.create({
             name: "testroom1", address: "1234moundstreet", longitude: 44.2341,
 		    lattitude: 45.2213, clean: [0,0], smell: [0,0], TP: [0,0], safety: [0,0], 
-		    privacy: [0,0], busyness: [0,0], price: 0, handicap: 0, 
+		    privacy: [0,0], busyness: [0,0], pay: 0, handicap: 0, 
 		    genderNeutral: 0, hygiene: 0, changingStation: 0, flags: 0, flaggedBy:[]
         })
         let req = {address: "1234moundstreet"}
@@ -309,44 +310,11 @@ afterAll((done => {
         expect(res.body.data.deletedCount).toBe(0)
     })
 
-    //favorites tests
-    test('update favorites when restroom is removed', async() => {
-        await Restroom.create({
-            name: "testroom", address: "1234moundstreet", longitude: 44.2341,
-		    lattitude: 45.2213, clean: [0,0], smell: [0,0], TP: [0,0], safety: [0,0], 
-		    privacy: [0,0], busyness: [0,0], price: 0, handicap: 0, 
-		    genderNeutral: 0, hygiene: 0, changingStation: 0, flags: 0, flaggedBy:[]
-        })
-        await UserData.findOneAndUpdate({username: 'tests'}, {favorites: ["testroom"]})
-        await request(app).delete('/api/rm-RR', async (res) => {
-            let room = await UserData.findOne({username: "tests"})
-            expect(room.favorites).toMatchObject([])
-        }).send({name: "testroom"}).set({'x-access-token': responseToken}).expect(200)
-        await Restroom.findOneAndDelete({name: "testroom"})
-    })
-
-    //user tests
-    test('remove user', async() => {
-        const res = await request(app).delete('/api/rm-user').send({}).set({'x-access-token': responseToken}).expect(200)
-        const res2 = await User.findOne({username: "tests"}).lean()
-        expect(res.body.data.deletedCount).toBe(1)
-        expect(res2).toBeFalsy()
-    })
-
-    test('remove user no longer present', async() => {
-        const res = await request(app).delete('/api/rm-user').send({}).set({'x-access-token': responseToken}).expect(200)
-        const res2 = await User.findOne({username: "tests"}).lean()
-        expect(res.body.data.deletedCount).toBe(0)
-        expect(res2).toBeFalsy()
-    })
-
-
-    //unauthenticated route tests
     test('get multiple restrooms', async() => {
         let req = {
             name: "testroomB", description: "this is a test", address: "12318 mound street", longitude: 44.2341,
 		    lattitude: 45.2213, clean: [0,0], smell: [0,0], TP: [0,0], safety: [0,0], 
-		    privacy: [0,0], busyness: [0,0], price: 0, handicap: 0, 
+		    privacy: [0,0], busyness: [0,0], pay: 0, handicap: 0, 
 		    genderNeutral: 0, hygiene: 0, changingStation: 0, flags: 0, flaggedBy:[]
         }
         await Restroom.create(req)
@@ -370,13 +338,121 @@ afterAll((done => {
         .query({longitude: 44.2341, lattitude: 45.2213, radius: 3})
         .set({'x-access-token': responseToken})
         .expect(200)
-        expect(res.body.data.length).toBe(2)
-
-        await Restroom.deleteOne({name: 'testroomB'})
-        await Restroom.deleteOne({name: 'testroomC'})
-        await Restroom.deleteOne({name: 'testroomD'})
-        await Restroom.deleteOne({name: 'testroomE'})  
+        expect(res.body.data.length).toBe(2)  
     })
+
+    //favorites tests
+    test('update favorites when restroom is removed', async() => {
+        await Restroom.create({
+            name: "testroom", address: "1234moundstreet", longitude: 44.2341,
+		    lattitude: 45.2213, clean: [0,0], smell: [0,0], TP: [0,0], safety: [0,0], 
+		    privacy: [0,0], busyness: [0,0], pay: 0, handicap: 0, 
+		    genderNeutral: 0, hygiene: 0, changingStation: 0, flags: 0, flaggedBy:[]
+        })
+        await UserData.findOneAndUpdate({username: 'tests'}, {favorites: ["testroom"]})
+        await request(app).delete('/api/rm-RR', async (res) => {
+            let room = await UserData.findOne({username: "tests"})
+            expect(room.favorites).toMatchObject([])
+        }).send({name: "testroom"}).set({'x-access-token': responseToken}).expect(200)
+    })
+
+    // review tests
+
+    //post a review for restroom not in server
+    test('review restroom that doesnt exists', async()=>{
+        let req = {restroomName: "bogus", username: "tests",
+			time: "1", clean: 3, smell: 3,
+			TP: 3, safety: 3, privacy: 3,
+			busyness: 3, pay: 3, handicap: 0,
+			genderNeutral: 0, hygiene: 0, changingStation: 0}
+        let res = await request(app).post('/api/new-review').send(req).set({'x-access-token': responseToken}).expect(400)
+        expect(res.body.message).toBe("restroom not found")
+    })
+
+    //post a review for a username/restroom combo that already exists
+    test('duplicate review', async() => {
+        await Restroom.create({
+            name: "testroom1", address: "1234moundstreet", longitude: 44.2341,
+		    lattitude: 45.2213, clean: [0,0], smell: [0,0], TP: [0,0], safety: [0,0], 
+		    privacy: [0,0], busyness: [0,0], pay: 0, handicap: 0, 
+		    genderNeutral: 0, hygiene: 0, changingStation: 0, flags: 0, flaggedBy:[]
+        })
+
+        let req = {restroomName: "testroom1", username: "tests",
+        time: "1", clean: 3, smell: 3,
+        TP: 3, safety: 3, privacy: 3,
+        busyness: 3, pay: 3, handicap: 0,
+        genderNeutral: 0, hygiene: 0, changingStation: 0}
+        await Review.create(req)
+        let res = await request(app).post('/api/new-review').send(req).set({'x-access-token': responseToken}).expect(400)
+        expect(res.body.message).toBe("User has already reviewed this restroom")
+       })
+    //post a valid review
+    test('successful review', async() => {
+        await Restroom.create({
+            name: "testroom1", address: "1234moundstreet", longitude: 44.2341,
+		    lattitude: 45.2213, clean: [0,0], smell: [0,0], TP: [0,0], safety: [0,0], 
+		    privacy: [0,0], busyness: [0,0], pay: 0, handicap: 0, 
+		    genderNeutral: 0, hygiene: 0, changingStation: 0, flags: 0, flaggedBy:[]
+        })
+        let req = {restroomName: "testroom1", username: "tests",
+        time: "1", clean: 1, smell: 2,
+        TP: 3, safety: 4, privacy: 5,
+        busyness: 3, pay: 1, handicap: -1,
+        genderNeutral: 1, hygiene: 1, changingStation: 0}
+        let res = await request(app).post('/api/new-review').send(req).set({'x-access-token': responseToken}).expect(200)
+        let rev = await Review.findOne({restroomName:"testroom1", username:"tests"})
+        expect(rev.clean).toBe(1)
+        expect(rev.smell).toBe(2)
+        expect(rev.TP).toBe(3)
+        expect(rev.safety).toBe(4)
+        expect(rev.privacy).toBe(5)
+        expect(rev.busyness).toBe(3)
+        expect(rev.pay).toBe(1)
+        expect(rev.handicap).toBe(-1)
+        expect(rev.genderNeutral).toBe(1)
+        expect(rev.hygiene).toBe(1)
+        expect(rev.changingStation).toBe(0)
+
+        let rest = await Restroom.findOne({name: "testroom1"})
+        expect(rest.clean[0]).toBe(1)
+        expect(rest.clean[1]).toBe(1)
+        expect(rest.smell[0]).toBe(2)
+        expect(rest.smell[1]).toBe(1)
+        expect(rest.TP[0]).toBe(3)
+        expect(rest.TP[1]).toBe(1)
+        expect(rest.safety[0]).toBe(4)
+        expect(rest.safety[1]).toBe(1)
+        expect(rest.privacy[0]).toBe(5)
+        expect(rest.privacy[1]).toBe(1)
+        expect(rest.busyness[0]).toBe(3)
+        expect(rest.busyness[1]).toBe(1)
+
+        expect(rest.pay).toBe(1)
+        expect(rest.handicap).toBe(-1)
+        expect(rest.genderNeutral).toBe(1)
+        expect(rest.hygiene).toBe(1)
+        expect(rest.changingStation).toBe(0)
+    })
+
+    //user tests
+    test('remove user', async() => {
+        const res = await request(app).delete('/api/rm-user').send({}).set({'x-access-token': responseToken}).expect(200)
+        const res2 = await User.findOne({username: "tests"}).lean()
+        expect(res.body.data.deletedCount).toBe(1)
+        expect(res2).toBeFalsy()
+    })
+
+    test('remove user no longer present', async() => {
+        const res = await request(app).delete('/api/rm-user').send({}).set({'x-access-token': responseToken}).expect(200)
+        const res2 = await User.findOne({username: "tests"}).lean()
+        expect(res.body.data.deletedCount).toBe(0)
+        expect(res2).toBeFalsy()
+    })
+
+
+    //unauthenticated route tests
+    
 
 
    

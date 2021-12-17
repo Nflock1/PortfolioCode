@@ -70,7 +70,7 @@ function App() {
         <Drawer.Screen name = "Home" component = {HomeScreen}/>
         <Drawer.Screen name = "Favorites" component = {FavoriteScreen}/>
         <Drawer.Screen name = "Submit Restroom" component = {SubmissionScreen}/>
-        <Drawer.Screen name = "Log Out" component = {signOut()}/>
+        
 
       </Drawer.Navigator>
 
