@@ -167,7 +167,7 @@ userRoutes.post('/api/update-userData', verifyJWT, async (req, res)=>{
 //posting a new restroom object to the server
 userRoutes.post('/api/new-RR', verifyJWT, async (req, res) =>{
 	const { name, description, address, longitude,
-		 lattitude, clean, smell, TP, safety, 
+		 latitude, clean, smell, TP, safety, 
 		 privacy, busyness, price, handicap, 
 		 genderNeutral, hygiene, changingStation, flags, flaggedBy } = req.body
 
@@ -175,10 +175,10 @@ userRoutes.post('/api/new-RR', verifyJWT, async (req, res) =>{
 		const response = await Restroom.create({
 			name, description, 
 			address, longitude, 
-			lattitude, clean, 
+			latitude, clean, 
 			smell, TP, safety, 
 			privacy, busyness, 
-			price, handicap, 
+			pay, handicap, 
 			genderNeutral, hygiene, 
 			changingStation, flags, flaggedBy
 		})
@@ -267,13 +267,10 @@ userRoutes.get('/api/near-RR', async (req, res) =>{
 
 	var long1 = parseFloat(req.query.longitude) - parseFloat(req.query.radius)/(54.5833333)
 	var long2 = parseFloat(req.query.longitude) + parseFloat(req.query.radius)/(54.5833333)
-	var lat1 = parseFloat(req.query.lattitude) - parseFloat(req.query.radius)/(54.5833333)
-	var lat2 = parseFloat(req.query.lattitude) + parseFloat(req.query.radius)/(54.5833333)
-	let myquery = {longitude:{$gte: long1, $lte: long2}, lattitude: {$gte: lat1, $lte: lat2}}
+	var lat1 = parseFloat(req.query.latitude) - parseFloat(req.query.radius)/(54.5833333)
+	var lat2 = parseFloat(req.query.latitude) + parseFloat(req.query.radius)/(54.5833333)
+	let myquery = {longitude:{$gte: long1, $lte: long2}, latitude: {$gte: lat1, $lte: lat2}}
 	Restroom.find(myquery, (err, docs) => {
-		if(err){
-			throw err;
-		}
 		/////////// emitted for code coverage
 		/* if(err) {
 			console.log(error.message)
@@ -282,7 +279,7 @@ userRoutes.get('/api/near-RR', async (req, res) =>{
 		} */////////
 		var rNew = docs
 		for(var i = 0; i<docs.length; i++){
-			if(Math.pow((docs[i].longitude-parseFloat(req.query.longitude)*(54.5833333), 2)) + Math.pow((docs[i].lattitude-parseFloat(req.query.lattitude))*(54.5833333), 2) > Math.pow(parseFloat(req.query.radius), 2)){
+			if(Math.pow((docs[i].longitude-parseFloat(req.query.longitude)*(54.5833333), 2)) + Math.pow((docs[i].latitude-parseFloat(req.query.latitude))*(54.5833333), 2) > Math.pow(parseFloat(req.query.radius), 2)){
 				rNew = rNew.splice(i, 1)//impossible to fully branch test this statement bc cannot execute when loop condition fails
 			}
 		}
@@ -293,25 +290,28 @@ userRoutes.get('/api/near-RR', async (req, res) =>{
 })
 
 
-/* //post for when a user leaves a new review
+//post for when a user leaves a new review
 userRoutes.post('/api/new-review', verifyJWT, async (req, res) =>{
 	//check that restroom exists to leave review
 	const rest = await Restroom.findOne({restroomName: req.body.restroomName});
 	if(!rest){
+		console.log("AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
+		res.status(400)
 		return res.json({message: "restroom not found"})
 	}
-	
+	console.log(JSON.stringify(req.body))
 	//check that review is unique to user
 	const myQuery = {restroomName: req.body.restroomName, username: req.body.username}
 	let post = await Review.findOne(myQuery).lean();
 	if(!post) {
 		await Review.create({
-			RestroomID: req.body.RestroomID, UserID: req.body.UserID,
+			restroomName: req.body.restroomName, username: req.body.username,
 			time: req.body.time, clean: req.body.clean, smell: req.body.smell,
 			TP: req.body.TP, safety: req.body.safety, privacy: req.body.privacy,
-			busyness: req.body.busyness, pay: req.body.price, handicap: req.body.handicap,
-			GenderNeutral: req.body.GenderNeutral, Hygiene: req.body.Hygiene, ChangingStation: req.body.ChangingStation
+			busyness: req.body.busyness, pay: req.body.pay, handicap: req.body.handicap,
+			genderNeutral: req.body.genderNeutral, hygiene: req.body.hygiene, changingStation: req.body.changingStation, flags: 0, flaggedBy:[]
 		})
+		console.log("YOOOOOOOOOOOOOOOOO")
 		/////////// emitted for code coverage
 		// .catch((err) => {
 		//	console.log(err.message)
@@ -319,9 +319,11 @@ userRoutes.post('/api/new-review', verifyJWT, async (req, res) =>{
 		//	return res.json({message: err.message, data:err.name})
 		// })
 		/////////// 
-	} else {
+	} else {//maybe update here
+		console.log("BBBBBBBBBAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
+
 		res.status(400)
-		res.json({message: "User has already reviewed this restroom"})
+		return res.json({message: "User has already reviewed this restroom"})
 	}
 
 	const restNew = rest
@@ -340,22 +342,24 @@ userRoutes.post('/api/new-review', verifyJWT, async (req, res) =>{
 	restNew.privacy[1]++
 	restNew.busyness[1]++
 
-	restNew.price += req.body.price
+	restNew.pay += req.body.pay
 	restNew.handicap += req.body.handicap
 	restNew.genderNeutral += req.body.genderNeutral
 	restNew.hygiene += req.body.hygiene
 	restNew.changingStation += req.body.changingStation
 
+	await Restroom.findOneAndUpdate({name:req.body.restroomName}, restNew)
+	
 	res.status(200)
-	return res.json({message: "review sucessfully created"})
+	res.json({message: "review sucessfully created"})
 
 	//create new object when history is a thing
-}) */
+})
 
 
 //deletes review
 
-/* userRoutes.delete('/api/del-review', verifyJWT, async(req, res) => {
+ userRoutes.delete('/api/del-review', verifyJWT, async(req, res) => {
 	
 	//find restroom and review in question
 	let myquery = {restroomName:  req.body.restroomName, username: req.body.username};
@@ -375,7 +379,7 @@ userRoutes.post('/api/new-review', verifyJWT, async (req, res) =>{
 	rest.body.privacy[1]--;
 	rest.body.busyness[0] = (rest.body.busyness[0]*rest.body.busyness[1]-rev.busyness)/(rest.body.busyness[1]-1)
 	rest.body.busyness[1]--;
-	rest.body.price[0] = rest.body.price-rev.price
+	rest.body.pay[0] = rest.body.pay-rev.pay
 	rest.body.handicap[0] = rest.body.handicap-rev.handicap
 	rest.body.genderNeutral[0] = rest.body.genderNeutral-rev.genderNeutral
 	rest.body.hygeine[0] = rest.body.hygeine-rev.hygeine
@@ -390,6 +394,6 @@ userRoutes.post('/api/new-review', verifyJWT, async (req, res) =>{
 		// } 
 		////////////////
 		res.status(200);
-        res.json({message: "1 review successfully deleted", data: obj})
+        return res.json({message: "1 review successfully deleted", data: obj})
     })	
-}) */
+})
