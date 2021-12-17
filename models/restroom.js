@@ -13,7 +13,7 @@ const Restroom = new mongoose.Schema(
         safety: {type: [Number], required: true },
         privacy: {type: [Number], required: true },
         busyness: {type: [Number], required: true }, 
-        price: {type: Number, required: true},
+        pay: {type: Number, required: true},
         handicap: {type: Number, required: true},
         genderNeutral: {type: Number, required: true},
         hygiene: {type: Number, required: true},
