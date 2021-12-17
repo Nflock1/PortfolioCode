@@ -167,7 +167,7 @@ userRoutes.post('/api/update-userData', verifyJWT, async (req, res)=>{
 //posting a new restroom object to the server
 userRoutes.post('/api/new-RR', verifyJWT, async (req, res) =>{
 	const { name, description, address, longitude,
-		 lattitude, clean, smell, TP, safety, 
+		 latitude, clean, smell, TP, safety, 
 		 privacy, busyness, price, handicap, 
 		 genderNeutral, hygiene, changingStation, flags, flaggedBy } = req.body
 
@@ -175,7 +175,7 @@ userRoutes.post('/api/new-RR', verifyJWT, async (req, res) =>{
 		const response = await Restroom.create({
 			name, description, 
 			address, longitude, 
-			lattitude, clean, 
+			latitude, clean, 
 			smell, TP, safety, 
 			privacy, busyness, 
 			price, handicap, 
@@ -267,9 +267,9 @@ userRoutes.get('/api/near-RR', async (req, res) =>{
 
 	var long1 = parseFloat(req.query.longitude) - parseFloat(req.query.radius)/(54.5833333)
 	var long2 = parseFloat(req.query.longitude) + parseFloat(req.query.radius)/(54.5833333)
-	var lat1 = parseFloat(req.query.lattitude) - parseFloat(req.query.radius)/(54.5833333)
-	var lat2 = parseFloat(req.query.lattitude) + parseFloat(req.query.radius)/(54.5833333)
-	let myquery = {longitude:{$gte: long1, $lte: long2}, lattitude: {$gte: lat1, $lte: lat2}}
+	var lat1 = parseFloat(req.query.latitude) - parseFloat(req.query.radius)/(54.5833333)
+	var lat2 = parseFloat(req.query.latitude) + parseFloat(req.query.radius)/(54.5833333)
+	let myquery = {longitude:{$gte: long1, $lte: long2}, latitude: {$gte: lat1, $lte: lat2}}
 	Restroom.find(myquery, (err, docs) => {
 		if(err){
 			throw err;
@@ -282,7 +282,7 @@ userRoutes.get('/api/near-RR', async (req, res) =>{
 		} */////////
 		var rNew = docs
 		for(var i = 0; i<docs.length; i++){
-			if(Math.pow((docs[i].longitude-parseFloat(req.query.longitude)*(54.5833333), 2)) + Math.pow((docs[i].lattitude-parseFloat(req.query.lattitude))*(54.5833333), 2) > Math.pow(parseFloat(req.query.radius), 2)){
+			if(Math.pow((docs[i].longitude-parseFloat(req.query.longitude)*(54.5833333), 2)) + Math.pow((docs[i].latitude-parseFloat(req.query.latitude))*(54.5833333), 2) > Math.pow(parseFloat(req.query.radius), 2)){
 				rNew = rNew.splice(i, 1)//impossible to fully branch test this statement bc cannot execute when loop condition fails
 			}
 		}

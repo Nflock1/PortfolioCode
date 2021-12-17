@@ -6,7 +6,7 @@ const Restroom = new mongoose.Schema(
         description: { type: String, requied: true},
         address: { type: String, required: true, unique: true },
         longitude: { type: Number, required: true },
-        lattitude: { type: Number, required: true },
+        latitude: { type: Number, required: true },
         clean: {type: [Number], required: true },
         smell: {type: [Number], required: true },
         TP: {type: [Number], required: true },
