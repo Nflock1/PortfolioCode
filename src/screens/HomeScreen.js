@@ -1,11 +1,12 @@
 import axios from '../axios';
 import React, {useEffect, useState} from 'react';
-import MapView, {Marker} from 'react-native-maps';
-import {StyleSheet,View, Text, SafeAreaView, Button, Dimensions, Alert} from 'react-native';
+import MapView, {Callout, Marker} from 'react-native-maps';
+import {StyleSheet,View, Text, SafeAreaView, Button, Dimensions, Alert, TouchableOpacity} from 'react-native';
 import { AuthContext } from '../context';
 import * as Location from 'expo-location';
 import RestroomMarker from './restroomMarker';
 import SplashScreen from './SplashScreen';
+import RateRestroom from './RateRestroom';
 const STYLES = StyleSheet.create({
     buttonSignIn: {
         backgroundColor: 'dodgerblue',
@@ -36,6 +37,8 @@ function HomeScreen({navigation}) {
     const [mapRegion, setMapRegion] = useState(null);
     const [isLoading, setLoading] = useState(true);
     const [restrooms, setRestrooms] = useState([]);
+    const {signOut} = React.useContext(AuthContext);
+    const {enterAsGuest} = React.useContext(AuthContext);
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -68,7 +71,7 @@ function HomeScreen({navigation}) {
                                     },
                             longitudeDelta: 0.0922,
                             latitudeDelta: 0.0421,
-                            title: result.data.data[i].name,
+                            restroomName: result.data.data[i].name,
                         };
                         newarr[i] = restroom;
                     }
@@ -78,7 +81,7 @@ function HomeScreen({navigation}) {
   }, []);
 
   if (isLoading) {
-    return (SplashScreen());
+    return <SplashScreen/>;
   }
     return(
 
@@ -89,8 +92,10 @@ function HomeScreen({navigation}) {
                     <Marker
                     key={index}
                     coordinate={restrooms.latlng}
-                    title = {restrooms.title}
-                    />
+                    title = {restrooms.restroomName}
+                    tappable = {true}
+                    onPress={() => navigation.navigate("Rate Restroom", {restrooms})}
+                    ></Marker>
                 )): null}
             </MapView>
             <Text>Hello You Are On The HOMEPAGE!</Text>

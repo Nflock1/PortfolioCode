@@ -25,47 +25,50 @@ const STYLES = StyleSheet.create({
 
 });
 
-function RateRestroom(){
-
-    const [cleanliness, setCleanliness] = React.useState(10);
-    const [smell, setSmell] = React.useState(10);
-    const [tpQuality, setTpQuality] = React.useState(10);
-    const [safety, setSafety] = React.useState(10);
-    const [busyness, setBusyness] = React.useState(10);
-    const [privacy, setPrivacy] = React.useState(10);
+function RateRestroom(props){
+    const {restroom} = props;
+    const [cleanliness, setCleanliness] = React.useState(1);
+    const [smell, setSmell] = React.useState(1);
+    const [tpQuality, setTpQuality] = React.useState(1);
+    const [safety, setSafety] = React.useState(1);
+    const [busyness, setBusyness] = React.useState(1);
+    const [privacy, setPrivacy] = React.useState(1);
 
 
     const checkFields = () => {
-
         let errorFlag = false;
 
-        if(cleanliness === 10){           
+        if(cleanliness > 5){           
             Alert.alert('Cleanliness is required field!');
             errorFlag = true;
 
-        }else if(smell === 10){
+        }else if(smell > 5){
             Alert.alert('Smell is required field!');
             errorFlag = true;
 
-        }else if(tpQuality === 10){
+        }else if(tpQuality > 5){
             Alert.alert('Quality of Toilet Paper is required field!');
             errorFlag = true;
 
-        }else if(safety === 10){
+        }else if(safety > 5){
             Alert.alert('Safety is required field!');
             errorFlag = true;
 
-        }else if(busyness === 10){
+        }else if(busyness > 5){
             Alert.alert('Busyness of Restroom is required field!');
             errorFlag = true;
 
-        }else if(privacy === 10){
+        }else if(privacy > 5){
             Alert.alert('Restroom Privacy is required field!');
             errorFlag = true;
 
         }
         if(!errorFlag){ //Info to back end
-
+            const params = 
+            {
+                restroomName: restroom.restroomName,
+            }
+            axios.push('/api/new-review', )
 
         }
 
