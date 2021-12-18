@@ -58,12 +58,14 @@ function SignInScreen({navigation}) {
 
     async function getValueFor(key) {
         let result = await SecureStore.getItemAsync(key);
+        console.log("getvaluefor sign in: " + result)
         if(result) {
             onChangeResult(result);
         } else {
             console.log("Wrong Key for acessing token");
         }
     }
+    
 
     const checkInputFields = () => {
         let errorFlag = false;
@@ -76,7 +78,7 @@ function SignInScreen({navigation}) {
             errorFlag = true;
         }
         
-        let userAccess = true; //Change to false after done with testing
+        let userAccess = false; //Change to false after done with testing
 
         if(!errorFlag) {
 
@@ -85,12 +87,19 @@ function SignInScreen({navigation}) {
 
                 axios
                 .post('/api/login', {username: username, password: password})
-
-                    .then((results) =>  {
+                .then((results) =>  {
+                    if(results) { 
                     console.log('User Signed In');
-                    save(keyToken,results.data); //Saving token on device
+                    console.log("results.data: " + JSON.stringify(results.data.data));
+                    save('keyToken', results.data.data).then(()=>{
+                        console.log("Test");
+                        userAccess = true;                        
+                        Alert.alert('Signing You In', 'Click Continue', [
+                            {text: 'Continue', onPress: () => signIn()}
+                            ]);
+                    }) //Saving token on device
                     //setToken(results.data);
-                    access = true;
+                    } 
                 })
                         .catch(err => {
                             console.log(err)
@@ -98,21 +107,8 @@ function SignInScreen({navigation}) {
                 })
 
             }
-
-            if(userAccess){
-
-                save('keyToken', 'JWT')
-                .then(async()=>{
-                    await getValueFor('keyToken');
-                    console.log('in SignInScreen');
-                }) 
-                
-
-                Alert.alert('Signing You In', 'Click Continue', [
-                    {text: 'Continue', onPress: () => signIn()}
-                    ]);
-
-            }
+            console.log("test2: " + userAccess)
+            
         }
         
     };

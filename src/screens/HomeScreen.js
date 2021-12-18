@@ -7,6 +7,7 @@ import * as Location from 'expo-location';
 import RestroomMarker from './restroomMarker';
 import SplashScreen from './SplashScreen';
 import RateRestroom from './RateRestroom';
+import * as SecureStore from 'expo-secure-store';
 const STYLES = StyleSheet.create({
     buttonSignIn: {
         backgroundColor: 'dodgerblue',
@@ -39,8 +40,13 @@ function HomeScreen({navigation}) {
     const [restrooms, setRestrooms] = useState([]);
     const {signOut} = React.useContext(AuthContext);
     const {enterAsGuest} = React.useContext(AuthContext);
+
+
+
   useEffect(() => {
     (async () => {
+        
+
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
         setErrorMsg('Permission to access location was denied');

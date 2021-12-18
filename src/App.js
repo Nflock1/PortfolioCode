@@ -15,6 +15,12 @@ import * as SecureStore from 'expo-secure-store';
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
+        //example with token usage
+        // SecureStore.getItemAsync('keyToken').then((res) => {
+        //     await axios.get('example', {headers: {'x-access-token': res}})
+        //     await axios.post('example', request, {headers: {'x-access-token': res}})
+        //     await axios.delete('example', {headers: {'x-access-token': res}})
+        // })
 
 function App() {
 
@@ -29,8 +35,9 @@ function App() {
 
   async function getValueFor(key) {
     let result = await SecureStore.getItemAsync(key);
+    console.log("getting from secure: " + result)
     if(result) {
-        onChangeResult(result);
+        return result;
     } else {
         console.log("Wrong Key for acessing token");
     }
@@ -41,12 +48,12 @@ function App() {
     return {
       signIn: () => {
         setIsLoading(false);
-        setUserToken('asdf');
-        // getValueFor('keyToken')
-        // .then(()=>{
-        //   setUserToken(result);
-        //   console.log(userToken);
-        // })
+        console.log("TEST")
+        //setUserToken();
+        getValueFor('keyToken')
+        .then((res)=>{
+          setUserToken(res);
+        })
         
 
       },
