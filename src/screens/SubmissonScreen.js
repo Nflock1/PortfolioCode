@@ -5,6 +5,8 @@ import React from 'react';
 import {StyleSheet,View,Text, SafeAreaView, TextInput,TouchableOpacity, Button, Alert} from 'react-native';
 import { AuthContext } from '../context';
 import { CheckBox } from 'react-native-elements'
+import { ScrollView } from 'react-native-gesture-handler';
+import * as SecureStore from 'expo-secure-store';
 
 const STYLES = StyleSheet.create({
     buttonSignIn: {
@@ -76,35 +78,39 @@ function SubmissionScreen({navigation}) {
             const params = {
                 
                 access_key: '819aeae120ab09a50702a32d6f4dc305',
-                 query: '1600 Pennsylvania Ave NW'
+                 query: address
             }
             
             //axios call to geolocational api
             geolocation.get('http://api.positionstack.com/v1/forward', {params})
 
                 .then((res) => {
-                    setLatitude(res.data.results.latitude)
-                    setLongitude(res.data.results.longitude)
-                    console.log(res)
+                    //console.log(JSON.stringify(res.data))
+                    SecureStore.getItemAsync('keyToken').then((tokenRes) => {
+                        console.log(res.data.longitude)
+                        axios.post('/api/new-RR', {
+                            name: name, description: description, address: address,
+                            longitude: res.data.longitude, latitude: res.data.latitude, clean: 0, smell: 0, TP: 0,
+                            safety: 0, privacy: 0, busyness: 0, price: convert(price_check), handicap: convert(handicap_check),
+                            genderNeutral: convert(gender_check), hygiene: 0, changingStation: convert(cStation_check)
+                        }, {headers: {'x-access-token': tokenRes}})
+                        .then((result) => {
+                            Alert.alert('Restroom added!');
+                        })
+                        .catch(err => {
+                            console.log("couldn't send restroom : " + err.message);
+                        });
+                    })
+                   
+                   
+                    // setLatitude(res.data.results.latitude)
+                    // setLongitude(res.data.results.longitude)
+                    // console.log(res)
                 })
                 .catch(err => {
                     console.log("Error with positionstack api call " + err)
                     Alert.alert('Unable to find address! Try again.')
                 })
-
-            axios.post('/api/new-RR', {
-                name: name, description: description, address: address,
-                longitude: long, latitude: lat, clean: 0, smell: 0, TP: 0,
-                safety: 0, privacy: 0, busyness: 0, price: convert(price_check), handicap: convert(handicap_check),
-                genderNeutral: convert(gender_check), hygiene: 0, changingStation: convert(cStation_check)
-            })
-
-                .then((result) => {
-                    Alert.alert('Restroom added!');
-                })
-                .catch(err => {
-                    console.log("couldn't send restroom.");
-                });
         }
 
 
@@ -121,78 +127,80 @@ function SubmissionScreen({navigation}) {
                 <Text>Hello You Are On The Restroom Submission Page!</Text>
             </View> */}
             
-            <View style ={{marginTop: 20}}>
-                <View style ={{flexDirection: 'row', marginTop:20}}>
-                    <TextInput
-                        placeholder = "Restroom Name"
-                        style = {STYLES.textBoxStyle}
-                        onChangeText ={(val) => setName(val)}
-                    />
+            <ScrollView keyboardShouldPersistTaps = 'handled'>
+                <View style ={{marginTop: 20}}>
+                    <View style ={{flexDirection: 'row', marginTop:20}}>
+                        <TextInput
+                            placeholder = "Restroom Name"
+                            style = {STYLES.textBoxStyle}
+                            onChangeText ={(val) => setName(val)}
+                        />
+                    </View>
+
+                    <View style ={{flexDirection: 'row', marginTop:20}}>
+                        <TextInput
+                            placeholder = "Address"
+                            style = {STYLES.textBoxStyle}
+                            onChangeText ={(val) => setAddress(val)}
+                        />
+                    </View>
+
+                    <View style ={{flexDirection: 'row', marginTop:20}}>
+                        <TextInput
+                            placeholder = "Description"
+                            multiline = {true}
+                            style = {STYLES.textBoxStyle}
+                            onChangeText ={(val) => setDescription(val)}
+                        />
+                    </View>
+
+                    <View style ={{flexDirection: 'row', marginTop:20}}>
+                        <CheckBox
+
+                        title= 'Did you have to pay?'
+                        checked = {price_check}
+                        onPress={() => setprice(!price_check)}
+                        />
+                    </View>
+
+                    <View style ={{flexDirection: 'row', marginTop:20}}>
+                        <CheckBox
+
+                        title= 'Handicap accessible?'
+                        checked = {handicap_check}
+                        onPress={() => setHandicapBool(!handicap_check)}
+                        />
+                    </View>
+
+                    <View style ={{flexDirection: 'row', marginTop:20}}>
+                        <CheckBox
+
+                        title= 'Was there a gender neutral option?'
+                        checked = {gender_check}
+                        onPress={() => setGenderBool(!gender_check)}
+                        />
+                    </View>
+
+                    <View style ={{flexDirection: 'row', marginTop:20}}>
+                        <CheckBox
+
+                        title= 'Was there a changing station?'
+                        checked = {cStation_check}
+                        onPress={() => setCStationBool(!cStation_check)}
+                        />
+                    </View>
+                    
+                    <View style = {STYLES.buttonSignIn}>
+                            <TouchableOpacity onPress={restroomHandler}>
+                                <Text style= {{color: 'white',fontWeight: "bold", fontSize: 18}}> 
+                                    Submit
+                                </Text>
+                            </TouchableOpacity>
+                    </View>    
                 </View>
 
-                <View style ={{flexDirection: 'row', marginTop:20}}>
-                    <TextInput
-                        placeholder = "Address"
-                        style = {STYLES.textBoxStyle}
-                        onChangeText ={(val) => setAddress(val)}
-                    />
-                </View>
 
-                <View style ={{flexDirection: 'row', marginTop:20}}>
-                    <TextInput
-                        placeholder = "Description"
-                        multiline = {true}
-                        style = {STYLES.textBoxStyle}
-                        onChangeText ={(val) => setDescription(val)}
-                    />
-                </View>
-
-                <View style ={{flexDirection: 'row', marginTop:20}}>
-                    <CheckBox
-
-                    title= 'Did you have to pay?'
-                    checked = {price_check}
-                    onPress={() => setprice(!price_check)}
-                    />
-                </View>
-
-                <View style ={{flexDirection: 'row', marginTop:20}}>
-                    <CheckBox
-
-                    title= 'Handicap accessible?'
-                    checked = {handicap_check}
-                    onPress={() => setHandicapBool(!handicap_check)}
-                    />
-                </View>
-
-                <View style ={{flexDirection: 'row', marginTop:20}}>
-                    <CheckBox
-
-                    title= 'Was there a gender neutral option?'
-                    checked = {gender_check}
-                    onPress={() => setGenderBool(!gender_check)}
-                    />
-                </View>
-
-                <View style ={{flexDirection: 'row', marginTop:20}}>
-                    <CheckBox
-
-                    title= 'Was there a changing station?'
-                    checked = {cStation_check}
-                    onPress={() => setCStationBool(!cStation_check)}
-                    />
-                </View>
-                
-                <View style = {STYLES.buttonSignIn}>
-                        <TouchableOpacity onPress={restroomHandler}>
-                            <Text style= {{color: 'white',fontWeight: "bold", fontSize: 18}}> 
-                                Submit
-                            </Text>
-                        </TouchableOpacity>
-                </View>    
-            </View>
-
-            
+            </ScrollView>
             
         </SafeAreaView>
 
