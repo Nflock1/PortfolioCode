@@ -1,6 +1,7 @@
-import axios from 'axios';
+import axios from '../axios';
 import React from 'react';
 import {StyleSheet,Text, SafeAreaView, View, ScrollView, TextInput,TouchableOpacity, Button, Alert} from 'react-native';
+import * as SecureStore from 'expo-secure-store';
 
 const STYLES = StyleSheet.create({
     buttonSignIn: {
@@ -25,15 +26,14 @@ const STYLES = StyleSheet.create({
 
 });
 
-function RateRestroom(props){
-    const {restroom} = props;
+function RateRestroom(props, navigation){
+    const [restroomName] = props.route.params.restrooms.restroomName;
     const [cleanliness, setCleanliness] = React.useState(1);
     const [smell, setSmell] = React.useState(1);
     const [tpQuality, setTpQuality] = React.useState(1);
     const [safety, setSafety] = React.useState(1);
     const [busyness, setBusyness] = React.useState(1);
     const [privacy, setPrivacy] = React.useState(1);
-
 
     const checkFields = () => {
         let errorFlag = false;
@@ -66,9 +66,27 @@ function RateRestroom(props){
         if(!errorFlag){ //Info to back end
             const params = 
             {
-                restroomName: restroom.restroomName,
+                restroomName: restroomName,
+                username: "guest",
+                cleanliness: cleanliness,
+                smell: smell,
+                tpQuality: tpQuality,
+                safety: safety,
+                busyness: busyness,
+                privacy: privacy,
             }
-            axios.push('/api/new-review', )
+            SecureStore.getItemAsync('keyToken').then((result) =>{
+                axios.post('/api/new-review', params, {headers: {'x-access-token':result}})
+                .then((res) => {
+                  Alert.alert('Signing You In', 'Click Continue', [
+                      {text: 'Continue', onPress: () => navigation.navigate("Home")}
+                     ]);
+                })
+                .catch(err => {
+                    console.log(err);
+                })
+            })
+            
 
         }
 
