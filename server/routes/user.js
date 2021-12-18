@@ -299,11 +299,11 @@ userRoutes.post('/api/new-review', verifyJWT, async (req, res) =>{
 		return res.json({message: "restroom not found"})
 	}
 	//check that review is unique to user
-	const myQuery = {restroomName: req.body.restroomName, username: req.body.username}
+	const myQuery = {restroomName: req.body.restroomName, username: req.user.username}
 	let post = await Review.findOne(myQuery).lean();
 	if(!post) {
 		await Review.create({
-			restroomName: req.body.restroomName, username: req.body.username,
+			restroomName: req.body.restroomName, username: req.user.username,
 			time: req.body.time, clean: req.body.clean, smell: req.body.smell,
 			TP: req.body.TP, safety: req.body.safety, privacy: req.body.privacy,
 			busyness: req.body.busyness, pay: req.body.pay, handicap: req.body.handicap,
@@ -357,7 +357,7 @@ userRoutes.post('/api/new-review', verifyJWT, async (req, res) =>{
  userRoutes.delete('/api/del-review', verifyJWT, async(req, res) => {
 	
 	//find restroom and review in question
-	let myquery = {restroomName:  req.body.restroomName, username: req.body.username};
+	let myquery = {restroomName:  req.body.restroomName, username: req.user.username};
 	let rest = Restroom.findOne({restroomName: req.body.RestroomID}).lean()
 	let rev = Review.findOne(myquery).lean()
 

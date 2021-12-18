@@ -95,7 +95,7 @@ function App() {
 
       <Drawer.Navigator>
 
-        <Drawer.Screen name = "Home" component = {HomeScreen}/>
+        <Drawer.Screen name = "Home" component = {HomeScreen} />
         <Drawer.Screen name = "Favorites" component = {FavoriteScreen}/>
         <Drawer.Screen name = "Submit Restroom" component = {SubmissionScreen}/>
         <Drawer.Screen name = "Rate Restroom" component = {RateRestroom}/>
