@@ -168,7 +168,7 @@ userRoutes.post('/api/update-userData', verifyJWT, async (req, res)=>{
 userRoutes.post('/api/new-RR', verifyJWT, async (req, res) =>{
 	const { name, description, address, longitude,
 		 latitude, clean, smell, TP, safety, 
-		 privacy, busyness, price, handicap, 
+		 privacy, busyness, pay, handicap, 
 		 genderNeutral, hygiene, changingStation, flags, flaggedBy } = req.body
 
 	try {
@@ -295,11 +295,9 @@ userRoutes.post('/api/new-review', verifyJWT, async (req, res) =>{
 	//check that restroom exists to leave review
 	const rest = await Restroom.findOne({restroomName: req.body.restroomName});
 	if(!rest){
-		console.log("AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
 		res.status(400)
 		return res.json({message: "restroom not found"})
 	}
-	console.log(JSON.stringify(req.body))
 	//check that review is unique to user
 	const myQuery = {restroomName: req.body.restroomName, username: req.body.username}
 	let post = await Review.findOne(myQuery).lean();
@@ -311,7 +309,6 @@ userRoutes.post('/api/new-review', verifyJWT, async (req, res) =>{
 			busyness: req.body.busyness, pay: req.body.pay, handicap: req.body.handicap,
 			genderNeutral: req.body.genderNeutral, hygiene: req.body.hygiene, changingStation: req.body.changingStation, flags: 0, flaggedBy:[]
 		})
-		console.log("YOOOOOOOOOOOOOOOOO")
 		/////////// emitted for code coverage
 		// .catch((err) => {
 		//	console.log(err.message)
@@ -320,8 +317,6 @@ userRoutes.post('/api/new-review', verifyJWT, async (req, res) =>{
 		// })
 		/////////// 
 	} else {//maybe update here
-		console.log("BBBBBBBBBAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
-
 		res.status(400)
 		return res.json({message: "User has already reviewed this restroom"})
 	}

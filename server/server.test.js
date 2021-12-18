@@ -154,7 +154,6 @@ afterEach((done => {
         })
         await UserData.findOne({username: "nacho"}, async(err, doc)=>{
             expect(err).toBeFalsy()
-            console.log(doc._doc)
             doc.favorites = ["testroom", "testroom2"]
             const res = await request(app).post('/api/update-userData').send(doc._doc).set({'x-access-token': responseToken}).expect(400)
             doc.favorites = []
@@ -165,7 +164,7 @@ afterEach((done => {
     test('bad authentication check', async() => {
         const req = {
             name: "testroom1", address: "12345 mound street", longitude: 44.2341,
-		    lattitude: 45.2213, clean: [0,0], smell: [0,0], TP: [0,0], safety: [0,0], 
+		    latitude: 45.2213, clean: [0,0], smell: [0,0], TP: [0,0], safety: [0,0], 
 		    privacy: [0,0], busyness: [0,0], pay: 0, handicap: 0, 
 		    genderNeutral: 0, hygiene: 0, changingStation: 0
         }
@@ -179,7 +178,7 @@ afterEach((done => {
     test('authentication without token', async() => {
         const req = {
             name: "testroom1", address: "12345 mound street", longitude: 44.2341,
-		    lattitude: 45.2213, clean: [0,0], smell: [0,0], TP: [0,0], safety: [0,0], 
+		    latitude: 45.2213, clean: [0,0], smell: [0,0], TP: [0,0], safety: [0,0], 
 		    privacy: [0,0], busyness: [0,0], pay: 0, handicap: 0, 
 		    genderNeutral: 0, hygiene: 0, changingStation: 0
         }
@@ -193,7 +192,7 @@ afterEach((done => {
     //restroom tests
     test('no restrooms nearby', async() => {
         let res = await request(app).get('/api/near-RR')
-        .query({longitude: 44.2341, lattitude: 45.2213, radius: 3})
+        .query({longitude: 44.2341, latitude: 45.2213, radius: 3})
         .set({'x-access-token': responseToken})
         .expect(200)
 
@@ -203,7 +202,7 @@ afterEach((done => {
     test('creating restroom', async() => {
         const req = {
             name: "testroom", description: "this is a test", address: "1234 mound street", longitude: 44.2341,
-		    lattitude: 45.2213, clean: [0,0], smell: [0,0], TP: [0,0], safety: [0,0], 
+		    latitude: 45.2213, clean: [0,0], smell: [0,0], TP: [0,0], safety: [0,0], 
 		    privacy: [0,0], busyness: [0,0], pay: 0, handicap: 0, 
 		    genderNeutral: 0, hygiene: 0, changingStation: 0, flags: 0, flaggedBy: []
         }
@@ -213,7 +212,7 @@ afterEach((done => {
             expect(data.name).toBe(req.name)
             expect(data.address).toBe(req.address)
             expect(data.description).toBe(req.description)
-            expect(data.lattitude).toBe(req.lattitude)
+            expect(data.latitude).toBe(req.latitude)
             expect(data.longitude).toBe(req.longitude)
             expect(data.handicap).toBe(req.handicap)
             expect(data.genderNeutral).toBe(req.genderNeutral)
@@ -242,7 +241,7 @@ afterEach((done => {
     test('creating restroom with partial fields', async() => {
         const req = {
             name: "testroom1", address: "12345 mound street", longitude: 44.2341,
-		    lattitude: 45.2213, clean: [0,0], smell: [0,0], TP: [0,0], safety: [0,0], 
+		    latitude: 45.2213, clean: [0,0], smell: [0,0], TP: [0,0], safety: [0,0], 
 		    privacy: [0,0], busyness: [0,0], pay: 0, handicap: 0, 
 		    genderNeutral: 0, hygiene: 0, changingStation: 0, flags:0, flaggedBy:[]
         }
@@ -251,7 +250,7 @@ afterEach((done => {
          let data = await Restroom.findOne({name: req.name}).lean()
             expect(data.name).toBe(req.name)
             expect(data.address).toBe(req.address)
-            expect(data.lattitude).toBe(req.lattitude)
+            expect(data.latitude).toBe(req.latitude)
             expect(data.longitude).toBe(req.longitude)
             expect(data.handicap).toBe(req.handicap)
             expect(data.genderNeutral).toBe(req.genderNeutral)
@@ -262,24 +261,24 @@ afterEach((done => {
     test('creating duplicate restroom', async() => {
         const req = {
             name: "testroom1", address: "12345 mound street", longitude: 44.2341,
-		    lattitude: 45.2213, clean: [0,0], smell: [0,0], TP: [0,0], safety: [0,0], 
+		    latitude: 45.2213, clean: [0,0], smell: [0,0], TP: [0,0], safety: [0,0], 
 		    privacy: [0,0], busyness: [0,0], pay: 0, handicap: 0, 
 		    genderNeutral: 0, hygiene: 0, changingStation: 0, flags: 0, flaggedBy: []
         }
         let res0 = await Restroom.create(req)
         expect(res0).toBeTruthy()
         
-        req.lattitude = 0
+        req.latitude = 0
         let res = await request(app).post('/api/new-RR').send(req).set({'x-access-token': responseToken}).expect(400)
         expect(res.body.message).toBe("Restroom already exists") 
         let data = await Restroom.findOne({name: req.name}).lean()
-        expect(data.lattitude).toBe(45.2213)
+        expect(data.latitude).toBe(45.2213)
     })
 
     test('removing restroom by name', async() =>{
         await Restroom.create({
             name: "testroom", description: "this is a test", address: "1234 mound street", longitude: 44.2341,
-		    lattitude: 45.2213, clean: [0,0], smell: [0,0], TP: [0,0], safety: [0,0], 
+		    latitude: 45.2213, clean: [0,0], smell: [0,0], TP: [0,0], safety: [0,0], 
 		    privacy: [0,0], busyness: [0,0], pay: 0, handicap: 0, 
 		    genderNeutral: 0, hygiene: 0, changingStation: 0, flags:0, flaggedBy: []
         })
@@ -293,7 +292,7 @@ afterEach((done => {
     test('removing restroom by address', async() =>{
         await Restroom.create({
             name: "testroom1", address: "1234moundstreet", longitude: 44.2341,
-		    lattitude: 45.2213, clean: [0,0], smell: [0,0], TP: [0,0], safety: [0,0], 
+		    latitude: 45.2213, clean: [0,0], smell: [0,0], TP: [0,0], safety: [0,0], 
 		    privacy: [0,0], busyness: [0,0], pay: 0, handicap: 0, 
 		    genderNeutral: 0, hygiene: 0, changingStation: 0, flags: 0, flaggedBy:[]
         })
@@ -313,7 +312,7 @@ afterEach((done => {
     test('get multiple restrooms', async() => {
         let req = {
             name: "testroomB", description: "this is a test", address: "12318 mound street", longitude: 44.2341,
-		    lattitude: 45.2213, clean: [0,0], smell: [0,0], TP: [0,0], safety: [0,0], 
+		    latitude: 45.2213, clean: [0,0], smell: [0,0], TP: [0,0], safety: [0,0], 
 		    privacy: [0,0], busyness: [0,0], pay: 0, handicap: 0, 
 		    genderNeutral: 0, hygiene: 0, changingStation: 0, flags: 0, flaggedBy:[]
         }
@@ -321,21 +320,21 @@ afterEach((done => {
         req.name = "testroomC"
         req.address = "1238979034"
         req.longitude = req.longitude+(1/75)
-        req.lattitude = req.lattitude+(1/75)
+        req.latitude = req.latitude+(1/75)
         await Restroom.create(req)
         req.name = "testroomD"
         req.address = "123897s9034"
         req.longitude = req.longitude+1
-        req.lattitude = req.lattitude+1
+        req.latitude = req.latitude+1
         await Restroom.create(req)
         req.name = "testroomE"
         req.address = "asdfasgsdf"
         req.longitude = req.longitude+15
-        req.lattitude = req.lattitude+15
+        req.latitude = req.latitude+15
         await Restroom.create(req)
 
         let res = await request(app).get('/api/near-RR')
-        .query({longitude: 44.2341, lattitude: 45.2213, radius: 3})
+        .query({longitude: 44.2341, latitude: 45.2213, radius: 3})
         .set({'x-access-token': responseToken})
         .expect(200)
         expect(res.body.data.length).toBe(2)  
@@ -345,7 +344,7 @@ afterEach((done => {
     test('update favorites when restroom is removed', async() => {
         await Restroom.create({
             name: "testroom", address: "1234moundstreet", longitude: 44.2341,
-		    lattitude: 45.2213, clean: [0,0], smell: [0,0], TP: [0,0], safety: [0,0], 
+		    latitude: 45.2213, clean: [0,0], smell: [0,0], TP: [0,0], safety: [0,0], 
 		    privacy: [0,0], busyness: [0,0], pay: 0, handicap: 0, 
 		    genderNeutral: 0, hygiene: 0, changingStation: 0, flags: 0, flaggedBy:[]
         })
@@ -373,7 +372,7 @@ afterEach((done => {
     test('duplicate review', async() => {
         await Restroom.create({
             name: "testroom1", address: "1234moundstreet", longitude: 44.2341,
-		    lattitude: 45.2213, clean: [0,0], smell: [0,0], TP: [0,0], safety: [0,0], 
+		    latitude: 45.2213, clean: [0,0], smell: [0,0], TP: [0,0], safety: [0,0], 
 		    privacy: [0,0], busyness: [0,0], pay: 0, handicap: 0, 
 		    genderNeutral: 0, hygiene: 0, changingStation: 0, flags: 0, flaggedBy:[]
         })
@@ -391,7 +390,7 @@ afterEach((done => {
     test('successful review', async() => {
         await Restroom.create({
             name: "testroom1", address: "1234moundstreet", longitude: 44.2341,
-		    lattitude: 45.2213, clean: [0,0], smell: [0,0], TP: [0,0], safety: [0,0], 
+		    latitude: 45.2213, clean: [0,0], smell: [0,0], TP: [0,0], safety: [0,0], 
 		    privacy: [0,0], busyness: [0,0], pay: 0, handicap: 0, 
 		    genderNeutral: 0, hygiene: 0, changingStation: 0, flags: 0, flaggedBy:[]
         })
