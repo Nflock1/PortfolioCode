@@ -59,16 +59,28 @@ function SignUpScreen({navigation}) {
                 Alert.alert('Passwords do not match!');
                 errorFlag = true;
             }
+            
+            let userAccess = true;
+
             if(!errorFlag) {
+
+                
                 axios
                     .post('/api/register', {username: newUsername, password: newPassword})
                         .then(() => console.log('Registered New User'))
                             .catch(err => {
                             console.log(err)
+                            userAccess = false;
+                            Alert.alert('Sign In Failed, Try Again');
                 })
-                Alert.alert('Sign In Sucessful', 'Click Continue', [
-                    {text: 'Continue', onPress: () => signUp()}
-                    ])
+
+                if(userAccess){
+                    Alert.alert('Sign Up Sucessful', 'Click Continue', [
+                        {text: 'Continue', onPress: () => signUp()}
+                        ])
+
+                }
+
             }
 
         }
@@ -86,7 +98,7 @@ function SignUpScreen({navigation}) {
                   
                 </View> 
 
-                <View style={{marginTop: 70, alignContent: 'center'}}>                 
+                <View style={{marginTop: 70, paddingLeft: 10, alignContent: 'center'}}>                 
                     <Text style={{fontWeight: 'bold', fontSize: 25, color: 'black'}}> 
                         Welcome New Pooper!
                     </Text>

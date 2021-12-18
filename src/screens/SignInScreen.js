@@ -2,6 +2,7 @@ import React from 'react';
 import {StyleSheet,View,Text, SafeAreaView, ScrollView, TextInput,TouchableOpacity, Alert} from 'react-native';
 import axios from '../axios';
 import { AuthContext } from '../context';
+import * as SecureStore from 'expo-secure-store';
 
 const STYLES = StyleSheet.create({
 
@@ -43,69 +44,75 @@ function SignInScreen({navigation}) {
     const {signIn} = React.useContext(AuthContext);
     const {enterAsGuest} = React.useContext(AuthContext);
 
+    // const [key, setKey] = React.useState('');
+    // const [value, setValue] = React.useState('');
+    const [results, onChangeResult] = React.useState('');
     const [username, setUsername] = React.useState('');
     const [password, setPassword] = React.useState('');
+    const [token, setToken] = React.useState(''); //Might not need this state value
 
-    // const [userData, setUserData] = React.useState(
-    //     {username: "", userNameErrorMessage: "",
-    //     password: "", passwordErrorMessage: "",}
-    // );
+    async function save(key, value) {
+        let res = await SecureStore.setItemAsync(key, value);
+        console.log("res: " + JSON.stringify(res))
+    }
 
+    async function getValueFor(key) {
+        let result = await SecureStore.getItemAsync(key);
+        if(result) {
+            onChangeResult(result);
+        } else {
+            console.log("Wrong Key for acessing token");
+        }
+    }
 
-
-
-
-
-
-// const formValidation = async () => {
-//     //Attempt at checking user input fields
-//     let errorFlag = false
-
-//     if(userData.username.trim().length === 0){ //Input is not empty validation
-//         errorFlag = true;
-//         setUserData({username: "", userNameErrorMessage: "Username is a required field!"});
-//     }else if(userData.username.trim().length > 20) { //Max input is 20 chars
-//         errorFlag = true;
-//         setUserData({username: "", userNameErrorMessage: "Can't be larger than 20 characters" });
-//     }
-
-//     if(userData.password.trim().length === 0){//Input is not empty validation
-//         errorFlag = true;
-//         setUserData({password: "", passwordErrorMessage: "Password is a required field!"});
-
-//     }else if(userData.password.trim().length > 20) { //Max input is 20 chars
-//         errorFlag = true;
-//         setUserData({password: "", passwordErrorMessage: "Can't be larger than 20 characters"});
-//     }
-//     if(errorFlag){
-//         console.log("errorFlag");
-//     }
-// };
-
-        //Second Attempt to achieve form validation (It worked, simple for now)
     const checkInputFields = () => {
         let errorFlag = false;
 
         if(!username.trim()){
             Alert.alert('Username required field!');
             errorFlag = true;
-        }
-        if(!password.trim()){
+        }else if(!password.trim()){
             Alert.alert('Password required field!');
             errorFlag = true;
         }
+        
+        let userAccess = true; //Change to false after done with testing
+
         if(!errorFlag) {
 
-            axios
-            .post('/api/login', {username: username, password: password})
-            .then(() => console.log('Something happened'))
-            .catch(err => {
-                console.log(err)
-            })
 
-            Alert.alert('Sign In Sucessful', 'Click Continue', [
-            {text: 'Continue', onPress: () => signIn()}
-            ])
+            if(!userAccess) { // test if statment delete  after done (Won't enter here for the test)
+
+                axios
+                .post('/api/login', {username: username, password: password})
+
+                    .then((results) =>  {
+                    console.log('User Signed In');
+                    save(keyToken,results.data); //Saving token on device
+                    //setToken(results.data);
+                    access = true;
+                })
+                        .catch(err => {
+                            console.log(err)
+                            Alert.alert(err);
+                })
+
+            }
+
+            if(userAccess){
+
+                save('keyToken', 'JWT')
+                .then(async()=>{
+                    await getValueFor('keyToken');
+                    console.log('in SignInScreen');
+                }) 
+                
+
+                Alert.alert('Signing You In', 'Click Continue', [
+                    {text: 'Continue', onPress: () => signIn()}
+                    ]);
+
+            }
         }
         
     };
@@ -147,8 +154,8 @@ function SignInScreen({navigation}) {
                             flex: 1, 
                             fontSize: 18}}
                             onChangeText ={(val) => setUsername(val)} />
-                            {/* {userData.userNameErrorMessage.length > 0 && <Text style ={STYLES.textDanger}>{userData.userNameErrorMessage}</Text>} */}
                     </View>
+
                     <View style ={{flexDirection: 'row', marginTop:20}}>
                         <TextInput placeholder= "Password" 
                         style = {{color: 'black', 
@@ -159,7 +166,6 @@ function SignInScreen({navigation}) {
                         fontSize: 18}} 
                         secureTextEntry
                         onChangeText ={(val) => setPassword(val)}/>
-                        {/* {userData.passwordErrorMessage.length > 0 && <Text style={STYLES.textDanger}>{userData.passwordErrorMessage}</Text>} */}
                     </View>
 
                     <View style = {STYLES.buttonSignIn}>
