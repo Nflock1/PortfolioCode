@@ -167,13 +167,8 @@ userRoutes.post('/api/update-userData', verifyJWT, async (req, res)=>{
 //posting a new restroom object to the server
 userRoutes.post('/api/new-RR', verifyJWT, async (req, res) =>{
 	const { name, description, address, longitude,
-<<<<<<< HEAD
 		 latitude, clean, smell, TP, safety, 
 		 privacy, busyness, price, handicap, 
-=======
-		 lattitude, clean, smell, TP, safety, 
-		 privacy, busyness, pay, handicap, 
->>>>>>> 5fcb952ec5aaf2c41d401049c0b3a2ded55a23a5
 		 genderNeutral, hygiene, changingStation, flags, flaggedBy } = req.body
 
 	try {
