@@ -28,6 +28,8 @@ export default function Tile(props) {
     // const style1 = {padding: '1rem'};
     // const style2 = {align: 'center'};   style = {{...style1, ...style2}}
     
+
+
     return (
         <View style = {styles.tile}>
             <Text style ={styles.header}>{props.call}</Text>
@@ -35,11 +37,10 @@ export default function Tile(props) {
             <View >
                 <Text style = {{textAlign: 'center'}}>{props.instruct}</Text>
             </View>
-            {props.inputs.foreach( (inputs) =>{
+
                 <View>
                     <TextInput placeholder = {inputs}/>
                 </View>
-            })}
             
 
             <View>
