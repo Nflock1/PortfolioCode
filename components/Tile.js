@@ -8,14 +8,17 @@ export default function Tile(props) {
     // const [passText, setPassText] = useState('');
     // const [output, setOutput] = useState('Output will display here');
 
-    // function submit() {
-    //     let req = {username: userText, password: passText}; 
-    //     console.log(userText+ "    " + passText);
-    //     axios
-    //      .post('/api/register', {username: userText, password: passText})
-    //      .then((res) => setOutput(res.message))
-    //      .catch((res) => setOutput(res.message));
-    // }
+    function submit() {
+        if(props.call == "register"){
+            let req = {username: this.refs.input1.value, password: this.refs.input2.value}; 
+            console.log(JSON.stringify(req));
+            axios
+             .post('/api/register', req)
+             .then((res) => setOutput(res.message))
+             .catch((res) => setOutput(res.message));
+        }
+        
+    }
 
     // function getInputA(event){
     //     setUserText(event.target.value);
@@ -25,26 +28,20 @@ export default function Tile(props) {
     //     setPassText(event.target.value);
     // }
     
-    // const style1 = {padding: '1rem'};
-    // const style2 = {align: 'center'};   style = {{...style1, ...style2}}
     
 
 
     return (
         <View style = {styles.tile}>
             <Text style ={styles.header}>{props.call}</Text>
-
-            <View >
+            <View>
                 <Text style = {{textAlign: 'center'}}>{props.instruct}</Text>
             </View>
-
-                <View>
-                    <TextInput placeholder = {inputs}/>
-                </View>
-            
-
+            {props.inputs.map((input,index) =>{
+                return <View key = {index}><TextInput placeholder = {input} ref = {`input${index}`}/></View>
+            })}
             <View>
-                <Button title="submit"/>
+                <Button title="submit" onPress={submit}/>
             </View>
             <View>
                 <Text style = {{fontWeight: "bold", textAlign:'center', margin:10}}>{props.out}</Text>
