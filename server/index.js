@@ -1,6 +1,6 @@
 const mongoose = require("mongoose")
 const createServer = require("./server")
-const dbURL = "mongodb+srv://dcphillips99:00805061Dp!@ratemyrestroom.tobsj.mongodb.net/RateMyRestroom?retryWrites=true&w=majority";
+const dbURL = "mongodb+srv://nflock:BruhBruh123@ratemyrestroom.8amxp.mongodb.net/RateMyRestroom?retryWrites=true&w=majority";
 //require("dotenv").config({ path: "./config.env" });
 const port = 5000;
 const app = createServer()

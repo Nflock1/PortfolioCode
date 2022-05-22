@@ -20,9 +20,9 @@ const ObjectId = require("mongodb").ObjectId
 
 beforeAll((done) => {
     mongoose.connect(
-		"mongodb+srv://dcphillips99:00805061Dp!@ratemyrestroom.tobsj.mongodb.net/RateMyTestroom?retryWrites=true&w=majority",
+		"mongodb+srv://nbwkcn:BruhBruh123@ratemyrestroom.8amxp.mongodb.net/RateMyTestroom?retryWrites=true&w=majority",
 		{ useNewUrlParser: true },
-		() => done()
+        () => done()
 	)
 })
 
