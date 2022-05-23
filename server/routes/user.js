@@ -4,15 +4,16 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 //const CircularJSON = require('circular-json');
-const User = require('../../models/user');
-const UserData = require('../../models/userData');
-const Restroom = require('../../models/restroom')
-const Review = require('../../models/review')
+const User = require('../models/user');
+const UserData = require('../models/userData');
+const Restroom = require('../models/restroom')
+const Review = require('../models/review')
 const userRoutes = express.Router();
 //const util = require('util')
 module.exports = userRoutes;
 
-//may need to revise this string
+//code 298 = 400 
+//code 299 = 401
 
 
 userRoutes.post('/api/register', async (req, res) => {
@@ -32,7 +33,7 @@ userRoutes.post('/api/register', async (req, res) => {
 			res.status(200)
 			res.json({ message: 'User has been registered sucessfully'})
 		} catch (error) {
-			res.status(400)
+			res.status(298)
 			// usernames are valid at this point so our errors will always have code = 11000
 			//if (error.code === 11000) {
 				return res.json({ message: 'User Data already exists' })
@@ -41,7 +42,7 @@ userRoutes.post('/api/register', async (req, res) => {
 			//res.json({message: error.message, data:error.name})
 		}
 	} catch (error) {
-		res.status(400)
+		res.status(298)
 		// duplicate key
 		if (error.code === 11000) {
 			return res.json({ message: 'Username already in use' })
@@ -57,7 +58,7 @@ userRoutes.post('/api/login', async (req, res) => {
 	const user = await User.findOne({ username: username }).lean()
 
 	if (!user) {
-		res.status(400)
+		res.status(298)
 		return res.json({ message: 'Invalid username/password' })
 	}
 
@@ -74,7 +75,7 @@ userRoutes.post('/api/login', async (req, res) => {
 		res.status(200)
 		return res.json({ message: 'login successfully authenticated', data: token })
 	}
-	res.status(400)
+	res.status(298)//actually 400, but axios dumb
 	res.json({ message: 'Invalid username/password' })
 })
 
@@ -84,7 +85,7 @@ function verifyJWT(req, res, next) {
 		jwt.verify(token, JWT_SECRET, (err, decoded) => {
 			if(err) {
 				console.log(err.name + ": " + err.message) 
-				res.status(401)
+				res.status(299)//actually a 401, but axios overwrites responsed otherwise
 				res.json({
 					name: err.name,
 					message: err.message,
@@ -97,7 +98,7 @@ function verifyJWT(req, res, next) {
 			next()
 		})
 	} else{
-		res.status(401)
+		res.status(299)
 		res.json({message: "No Token Given", isLoggedIn: false})
 	}
 }
@@ -110,7 +111,7 @@ userRoutes.delete('/api/rm-user', verifyJWT, async (req, res) => {
         //////////////////emmitted for code coverage
 		/* if(err){
 			console.log(error.message)
-			res.status(400)
+			res.status(298)
 			res.json({message: error.message, data:error.name})
 		} else {
 			res.status(200);
@@ -125,7 +126,7 @@ userRoutes.delete('/api/rm-user', verifyJWT, async (req, res) => {
 			////////////////// emmitted for code coverage
 			/*if(error){
 				console.log(error.message)
-				res.status(400)
+				res.status(298)
 				res.json({message: error.message, data:error.name})
 			}*/
 			////////////////// 
@@ -143,7 +144,7 @@ userRoutes.get('/api/userData', verifyJWT, async (req, res) =>{
 			res.status(200)
 			res.json({message: "user sucessfully retreived", data: doc})
 		} else {
-			res.status(400)
+			res.status(298)
 			res.json({message: "user data not found in database"});
 		}
 	}).lean()//clone
@@ -158,7 +159,7 @@ userRoutes.post('/api/update-userData', verifyJWT, async (req, res)=>{
 			res.json({message: "Restroom has been sucessfully updated", data: doc});
 		})
 	} else {
-		res.status(400)
+		res.status(298)
 		res.json({message: "user data does not belong to logged in user"})
 	}
 })
@@ -188,11 +189,11 @@ userRoutes.post('/api/new-RR', verifyJWT, async (req, res) =>{
 	} catch (error) {
 		if (error.code === 11000) {
 			// duplicate key
-			res.status(400);
+			res.status(298);
 			return res.json({ message: 'Restroom already exists' })
 		}
 		console.log(error.name + ": " + error.message)
-		res.status(400)
+		res.status(298)
 		res.json({message: error.message, data: error.name})
 	}
 })
@@ -207,7 +208,7 @@ userRoutes.post('/api/new-RR', verifyJWT, async (req, res) =>{
 			res.status(200)
 			res.json({message: "restroom successfully flagged", data: doc})
 		} else{
-			res.status(400)
+			res.status(298)
 			res.status({message: "restroom not found"})
 		}
 	})
@@ -221,7 +222,7 @@ userRoutes.post('/api/unflag', verifyJWT, async(req, res) => {
 			res.status(200)
 			res.json({message: "restroom successfully unflagged", data: doc})
 		} else{
-			res.status(400)
+			res.status(298)
 			res.status({message: "restroom not found"})
 		}
 	})
@@ -238,7 +239,7 @@ userRoutes.delete('/api/rm-RR', verifyJWT, async(req, res) => {
         
 		////////////////// emitted for code coverage
 		/*if(err) {
-			res.sendStatus(400);
+			res.sendStatus(298);
 			res.
 			console.log(err.message);
 		}*/
@@ -274,7 +275,7 @@ userRoutes.get('/api/near-RR', async (req, res) =>{
 		/////////// emitted for code coverage
 		/* if(err) {
 			console.log(error.message)
-			res.status(400)
+			res.status(298)
 			res.json({message: error.message, data:error.name})
 		} */////////
 		var rNew = docs
@@ -295,7 +296,7 @@ userRoutes.post('/api/new-review', verifyJWT, async (req, res) =>{
 	//check that restroom exists to leave review
 	const rest = await Restroom.findOne({restroomName: req.body.restroomName});
 	if(!rest){
-		res.status(400)
+		res.status(298)
 		return res.json({message: "restroom not found"})
 	}
 	//check that review is unique to user
@@ -312,12 +313,12 @@ userRoutes.post('/api/new-review', verifyJWT, async (req, res) =>{
 		/////////// emitted for code coverage
 		// .catch((err) => {
 		//	console.log(err.message)
-		//	res.status(400)
+		//	res.status(298)
 		//	return res.json({message: err.message, data:err.name})
 		// })
 		/////////// 
 	} else {//maybe update here
-		res.status(400)
+		res.status(298)
 		return res.json({message: "User has already reviewed this restroom"})
 	}
 
@@ -384,7 +385,7 @@ userRoutes.post('/api/new-review', verifyJWT, async (req, res) =>{
 	Review.deleteOne(myquery, (err, obj) => {
         //////////////// emitted for code coverage
 		// if(err) {
-		//	res.sendStatus(400);
+		//	res.sendStatus(298);
 		//	throw err;
 		// } 
 		////////////////
