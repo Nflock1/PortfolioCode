@@ -98,6 +98,7 @@ function verifyJWT(req, res, next) {
 			next()
 		})
 	} else{
+		console.log("no token");
 		res.status(299)
 		res.json({message: "No Token Given", isLoggedIn: false})
 	}
@@ -124,11 +125,11 @@ userRoutes.delete('/api/rm-user', verifyJWT, async (req, res) => {
 
 		UserData.deleteOne(myquery, (error, object) =>{
 			////////////////// emmitted for code coverage
-			/*if(error){
+			if(error){
 				console.log(error.message)
 				res.status(298)
 				res.json({message: error.message, data:error.name})
-			}*/
+			}
 			////////////////// 
 		})
 	})
