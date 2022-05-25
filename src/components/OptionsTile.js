@@ -34,7 +34,6 @@ export default function InteractTile(props) {
 				setOutput(err.message);
 			})
 			.then((res) => {
-				console.log(res.status);
 				if (res.status == 200) {
 					setOutput("User sucessfully deleted");
 					logout();

@@ -9,7 +9,8 @@ import * as SecureStore from "expo-secure-store";
 import { AuthContext } from "./context";
 import React, { useMemo } from "react";
 import { collect } from "./components/UserInfo";
-import FavoriteTile from "./components/FavoritesTile";
+import RestroomTile from "./components/RestroomTile";
+import FavortieTile from "./components/FavoriteTile";
 
 async function save(key, value) {
 	await SecureStore.setItemAsync(key, value);
@@ -33,17 +34,28 @@ export default function App() {
 				setUserToken(null);
 				setUserInfo(null);
 			},
+			userInfo: () => {
+				collect().then((res) => {
+					setUserInfo(res);
+				});
+			},
 		};
 	});
 
 	return (
 		<AuthContext.Provider value={authCtx}>
 			<ScrollView style={styles.safe}>
-				<UserInfo info={userInfo ? userInfo : null}></UserInfo>
-				<OptionsTile loggedIn={userToken ? true : false}></OptionsTile>
-				<RegisterTile loggedIn={userToken ? true : false}></RegisterTile>
-				<LoginTile loggedIn={userToken ? true : false}></LoginTile>
-				<FavoriteTile loggedIn={userToken ? true : false}></FavoriteTile>
+				<View style={{ alignItems: "center" }}>
+					<RegisterTile loggedIn={userToken ? true : false}></RegisterTile>
+					<LoginTile loggedIn={userToken ? true : false}></LoginTile>
+					<RestroomTile loggedIn={userToken ? true : false}></RestroomTile>
+					<FavortieTile
+						loggedIn={userToken ? true : false}
+						info={userInfo ? userInfo : null}
+					></FavortieTile>
+					<UserInfo info={userInfo ? userInfo : null}></UserInfo>
+					<OptionsTile loggedIn={userToken ? true : false}></OptionsTile>
+				</View>
 			</ScrollView>
 		</AuthContext.Provider>
 	);

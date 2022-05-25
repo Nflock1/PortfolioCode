@@ -21,5 +21,8 @@
     "superagent-defaults": "^0.1.14",
     "supertest": "^6.2.3",
     "ts-jest": "^28.0.2"
+  },
+  "devDependencies": {
+    "cors": "^2.8.5"
   }
 }

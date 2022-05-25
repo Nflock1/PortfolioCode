@@ -5,7 +5,6 @@ import axios from "../axios";
 import * as SecureStore from "expo-secure-store";
 
 export default function infoTile(props) {
-	console.log("props.info: " + JSON.stringify(props.info));
 	let username = null;
 	let token = null;
 	let favorites = [];
@@ -13,10 +12,8 @@ export default function infoTile(props) {
 
 	if (props.info) {
 		if (props.info) {
-			console.log(props.info.data.username);
 			if (props.info.data.username) {
 				username = props.info.data.username;
-				console.log("username: " + username);
 			}
 			if (props.info.token) {
 				token = props.info.token;
@@ -29,14 +26,17 @@ export default function infoTile(props) {
 			}
 		}
 	}
+	let favs = "";
+	for (let i = 0; i < favorites.length; i++) {
+		i < favorites.length - 1 ? (favs = favs + favorites[i] + ", ") : (favs = favs + favorites[i]);
+	}
+
 	return (
 		<View style={styles.tile}>
 			<Text style={styles.header}>User Info</Text>
 			<View>
 				<Text>Username: </Text>
-				<Text style={{ fontWeight: "bold", textAlign: "center", margin: 10 }}>
-					{username}
-				</Text>
+				<Text style={{ fontWeight: "bold", textAlign: "center", margin: 10 }}>{username}</Text>
 			</View>
 			<View>
 				<Text>Token: </Text>
@@ -48,15 +48,11 @@ export default function infoTile(props) {
 				</View>
 				<View>
 					<Text>Favorites</Text>
-					<Text style={{ fontWeight: "bold", textAlign: "center", margin: 10 }}>
-						{favorites}
-					</Text>
+					<Text style={{ fontWeight: "bold", textAlign: "center", margin: 10 }}>{favs}</Text>
 				</View>
 				<View>
 					<Text>History</Text>
-					<Text style={{ fontWeight: "bold", textAlign: "center", margin: 10 }}>
-						{history}
-					</Text>
+					<Text style={{ fontWeight: "bold", textAlign: "center", margin: 10 }}>{history}</Text>
 				</View>
 			</View>
 		</View>
