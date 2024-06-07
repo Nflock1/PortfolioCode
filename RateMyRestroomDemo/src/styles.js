@@ -23,6 +23,7 @@ export default styles = StyleSheet.create({
 		width: "80%",
 		marginHorizontal: 10,
 		textAlign: "center",
+		marginTop:20
 	},
 
 	textBox: {
