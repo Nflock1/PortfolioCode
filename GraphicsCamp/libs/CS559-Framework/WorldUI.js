@@ -108,7 +108,7 @@ export class WorldUI {
 
         if (grading) {
             InputHelpers.makeSpan("replace",this.selectionChkList).innerHTML="&nbsp;&nbsp;&nbsp;&nbsp;";
-            remoteButton("Grader","https://graphics.cs.wisc.edu/test/grading.js",world,this.selectionChkList);
+            //remoteButton("Grader","https://graphics.cs.wisc.edu/test/grading.js",world,this.selectionChkList);
         }
         //
         //

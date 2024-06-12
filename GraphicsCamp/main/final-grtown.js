@@ -140,6 +140,7 @@ let spinTheKids = new GrColoredRoundabout({size:.5, x:6, z:8});
 world.add(spinTheKids);
 
 let carousel = new GrCarousel({size:.5})
+// @ts-ignore
 world.add(carousel);
 
 let swing1 = new GrAdvancedSwing({size:.5, x:6, z:3})
