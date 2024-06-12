@@ -48,7 +48,7 @@ however I have run it with the tab open for extended periods of time without iss
 Attributions:
 
 The following objects and behaviors were taken from workbooks administered in CS 559: Computer Graphics, taught by Michael Gleicher at UW Madison
-- the advances swing and its behavior (from WB07)
+- the advanced swing and its behavior (from WB07)
 - the multi color round about and its behavior (from WB07)
 
 The following objects/methods were taken from online resources:
