@@ -80,7 +80,7 @@ export class WorldUI {
         this.runslider = new InputHelpers.LabelSlider("speed", {
             width: 250,
             min: 0.1,
-            max: 3,
+            max: 2,
             step: 0.1,
             initial: 1,
             where: this.div
