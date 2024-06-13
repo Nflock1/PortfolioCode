@@ -197,8 +197,6 @@ export class GrDumpTruck extends GrObject {
             this.xdif = this.initPos[0]-this.whole_ob.position.x;
             this.zdif = this.initPos[1]- this.whole_ob.position.z;
             this.rdif = (this.whole_ob.rotation.y - this.initPos[2])%(2*PI)+PI
-            // let relativeAngle2 = (this.whole_ob.rotation.y - this.initPos[2] + PI) % (2*PI) - PI
-            // this.rdif = Math.abs(relativeAngle1) < Math.abs(relativeAngle2) ? relativeAngle1 : relativeAngle2;
         }
         this.whole_ob.position.x+= 2*this.xdif*delta/1000;
         this.whole_ob.position.z+= 2*this.zdif*delta/1000;
@@ -375,7 +373,7 @@ export class GrSkidLoader extends GrObject {
       //drive back to starting spot
         this.whole_ob.translateZ(2.5*delta/1000);
     }else if(this.time<16){
-      //orient to original starting spot
+      //turn a prescribed 90 degrees while navigating to orignal x,z coordinates
         if(this.end){
             this.end = false;
             this.dif[0] = this.initPos[0]-this.whole_ob.position.x;
@@ -384,10 +382,12 @@ export class GrSkidLoader extends GrObject {
         this.whole_ob.rotateY(-delta*PI/2000);
         this.whole_ob.position.x+= this.dif[0]*delta/1000;
         this.whole_ob.position.z+= this.dif[1]*delta/1000;
+
+        //reset bucket and arm positions while moving to make it less obvious - this eliminates buildup of small 'delta' deviations
         this.bucket.setRotationFromEuler(new T.Euler(5*PI/6,PI/2,PI))
         this.arm.setRotationFromEuler(new T.Euler(PI/6,0,0))
     } else if(this.time<17){
-
+      //final angular correction to original orientation
         if(this.end2){
             this.end2 = false;
             this.dif[2] = this.initPos[2] - this.whole_ob.rotation.y;
@@ -397,7 +397,6 @@ export class GrSkidLoader extends GrObject {
         this.whole_ob.position.x = this.initPos[0];
         this.whole_ob.position.z = this.initPos[1];
         this.whole_ob.rotation.y = this.initPos[2];
-        // this.bucket.setRotationFromQuaternion(new T.Quaternion(0.9659,0,0,0.2588))
     }
   }
 
