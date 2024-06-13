@@ -143,15 +143,15 @@ let carousel = new GrCarousel({size:.5})
 // @ts-ignore
 world.add(carousel);
 
-let swing1 = new GrAdvancedSwing({size:.5, x:6, z:3})
+let swing1 = new GrAdvancedSwing({size:.5, x:6, z:3, speed:.91, arcSize:1})
 world.add(swing1);
-let swing2 = new GrAdvancedSwing({size:.5, x:6, z:4})
+let swing2 = new GrAdvancedSwing({size:.5, x:6, z:4, speed:.85, arcSize:1})
 world.add(swing2);
 
 let skid = new GrSkidLoader({x:15,z:15,size:.4, y:.2});
 world.add(skid);
 
-let truck = new GrDumpTruck({x:10,z:11,size:.4, y:.2, rotation:PI});
+let truck = new GrDumpTruck({x:10,z:10,size:.4, y:.2, rotation:PI});
 world.add(truck);
 
 //world.add(tent1);

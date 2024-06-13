@@ -139,42 +139,70 @@ export class GrDumpTruck extends GrObject {
     this.time = this.time%33;
     if(this.time<11 ){this.end = true;}
     else if( this.time<14){
-        this.whole_ob.translateZ(delta*4/1000);
-    } else if(this.time<16){
-        this.whole_ob.rotateY(delta*PI/4000);
-        this.whole_ob.translateZ(delta*3/1000);
-    } else if(this.time<20){
+      //drive away with "full" load
         this.whole_ob.translateZ(delta*3.5/1000);
-    } else if(this.time<21){
+    } else if(this.time<16){
+      //round the corner
+        this.whole_ob.rotateY(delta*PI/4000);
+        this.whole_ob.translateZ(delta*3.5/1000);
+    } else if(this.time<19){
+      //drive to sharp turn
+        this.whole_ob.rotation.y = 3*PI/2
+
+        this.whole_ob.translateZ(delta*4.4/1000);
+    } else if(this.time<20){
+      //make sharp turn
         this.whole_ob.rotateY(delta*PI/1450);
         this.whole_ob.translateZ(delta*2/1000);
-    } else if(this.time<24){
+    } else if(this.time<23){
+      //drive to pile
+        this.whole_ob.rotation.y = 3*PI/2 + PI/1.45
+
         this.whole_ob.translateZ(delta*6/1000);
+    } else if(this.time<23.5){
+      //round pile corner
+        this.whole_ob.rotateY(2*delta*PI/3150);
+        this.whole_ob.translateZ(2*delta*2/1000);
     } else if(this.time<25){
-        this.whole_ob.rotateY(delta*PI/3150);
-        this.whole_ob.translateZ(delta*2/1000);
+      //back up to pile
+        this.whole_ob.rotation.y = PI/2 
+
+        this.whole_ob.translateZ(-delta*2.6/1250);
     } else if(this.time<26){
-        this.whole_ob.translateZ(-delta*3/1000);
-    } else if(this.time<27){
+      //dump bed
         this.bed.rotateX(-delta*PI/3000);
         this.tailgate.rotateX(-delta*PI/2000);
     }else if(this.time<28){
+      //wait for load to "empty"
     } else if(this.time<29){
+      //reset bed
         this.bed.rotateX(delta*PI/3000);
         this.tailgate.rotateX(delta*PI/2000);
-    }
-    else if(this.time<31){
+    } else if(this.time<31){
+      //drive back to original
+        this.bed.rotation.x = 0
+        this.tailgate.rotation.x = 0
+
         this.whole_ob.translateZ(delta*4/1000);
-    }  else if(this.time<32){
+    } else if(this.time<32
+    ){
+      //round rinal corner
+      this.whole_ob.translateZ(delta*1.9/1000)
+      this.whole_ob.rotateY(19/48*PI*delta/1000)
+  
+    } else if(this.time<32.5){
+      //reset position
         if(this.end){
             this.end = false;
             this.xdif = this.initPos[0]-this.whole_ob.position.x;
             this.zdif = this.initPos[1]- this.whole_ob.position.z;
-            this.rdif = this.whole_ob.rotation.y- this.initPos[2];
+            this.rdif = (this.whole_ob.rotation.y - this.initPos[2])%(2*PI)+PI
+            // let relativeAngle2 = (this.whole_ob.rotation.y - this.initPos[2] + PI) % (2*PI) - PI
+            // this.rdif = Math.abs(relativeAngle1) < Math.abs(relativeAngle2) ? relativeAngle1 : relativeAngle2;
         }
-        this.whole_ob.position.x+= this.xdif*delta/1000;
-        this.whole_ob.position.z+= this.zdif*delta/1000;
-        this.whole_ob.rotateY(-delta*this.rdif/1000);
+        this.whole_ob.position.x+= 2*this.xdif*delta/1000;
+        this.whole_ob.position.z+= 2*this.zdif*delta/1000;
+        this.whole_ob.rotateY(2*delta*this.rdif/1000);
     } else if(this.time<33){
         this.whole_ob.position.x = this.initPos[0];
         this.whole_ob.position.z = this.initPos[1];
@@ -288,34 +316,66 @@ export class GrSkidLoader extends GrObject {
     this.time+=delta/1000;
     this.time = this.time%33;
     if(this.time<1){
+      //drive up to dirt
         this.end = true;
         this.whole_ob.translateZ(2*delta/1000)
     } else if(this.time<2){
+      //scoop dirt
+        this.whole_ob.position.z = Math.round(this.whole_ob.position.z)
+        
         this.arm.rotateX(-delta*PI/3000);
         this.bucket.rotateZ(delta*PI/4000);
     } else if(this.time<3){
+      //back up from pile
+        this.arm.rotation.x = PI/6-PI/3
+        this.bucket.rotation.z = 0
+
         this.whole_ob.translateZ(-2*delta/1000);
     } else if(this.time<4){
-        this.whole_ob.rotation.y =(this.time-3)*-PI/2
+      //turn to the right
+        this.whole_ob.position.z = Math.round(this.whole_ob.position.z)
+        
+        this.whole_ob.rotateY(-delta*PI/2000)
     } else if(this.time<6){
+      //drive to left
+        this.whole_ob.rotation.y = 3*PI/2
+
         this.whole_ob.translateZ(2.5*delta/1000);
     } else if(this.time<7){
-        this.whole_ob.rotation.y =(this.time-5)*-PI/2
-    } else if(this.time<8){
-        this.whole_ob.translateZ(2.6*delta/1000)
-    } else if(this.time<9){
-        this.bucket.rotateZ(delta*PI/2500);
-    } else if (this.time<10){    
-    } else if(this.time<11){
-        this.whole_ob.translateZ(-2.6*delta/1000);
-        this.bucket.rotateZ(-delta*PI*13/20000);
-        this.arm.rotateX(delta*PI/3000);
-    } else if(this.time<12){
-        this.whole_ob.rotateY(-delta*PI/2000);
-    } else if (this.time<14){
-        this.whole_ob.translateZ(2.5*delta/1000);
-    }else if(this.time<15){
+      //turn to truck
+        this.whole_ob.position.z = Math.round(this.whole_ob.position.z)
         
+        this.whole_ob.rotateY(delta*-PI/2000)
+    } else if(this.time<8.5){
+      //drive up to truck
+        this.whole_ob.rotation.y = 0
+
+        this.whole_ob.translateZ(2.4*delta/1000)
+    } else if(this.time<9.5){
+      //dump bucket
+        this.whole_ob.position.z = Math.floor(this.whole_ob.position.z)+0.4
+
+        this.bucket.rotateZ(delta*PI/2500);
+    } else if (this.time<10.5){ 
+      //wait for bucket to 'empty'
+        
+    } else if(this.time<12){ 
+      //back up while resetting bucket and arms
+        this.whole_ob.translateZ(-2.4*delta/1000);
+        this.bucket.rotateZ(-delta*PI*13/30000);
+        this.arm.rotateX(delta*PI/4500);
+    } else if(this.time<13){
+        this.whole_ob.position.z = Math.round(this.whole_ob.position.z)
+        this.bucket.rotation.z = 0;
+        this.arm.rotation.x = PI/6
+      //turn to the right
+        this.whole_ob.rotateY(-delta*PI/2000);
+    } else if (this.time<15){
+        this.whole_ob.rotation.y = -3*PI/2
+      //drive back to starting spot
+        this.whole_ob.translateZ(2.5*delta/1000);
+    }else if(this.time<16){
+      //orient to original starting spot
         if(this.end){
             this.end = false;
             this.dif[0] = this.initPos[0]-this.whole_ob.position.x;
@@ -324,16 +384,20 @@ export class GrSkidLoader extends GrObject {
         this.whole_ob.rotateY(-delta*PI/2000);
         this.whole_ob.position.x+= this.dif[0]*delta/1000;
         this.whole_ob.position.z+= this.dif[1]*delta/1000;
-    } else if(this.time<16){
+        this.bucket.setRotationFromEuler(new T.Euler(5*PI/6,PI/2,PI))
+        this.arm.setRotationFromEuler(new T.Euler(PI/6,0,0))
+    } else if(this.time<17){
+
         if(this.end2){
             this.end2 = false;
             this.dif[2] = this.initPos[2] - this.whole_ob.rotation.y;
-        }
+          }
         this.whole_ob.rotateY(delta*this.dif[2]/1000);
-    } else if(this.time<17){
+    } else if(this.time<18){
         this.whole_ob.position.x = this.initPos[0];
         this.whole_ob.position.z = this.initPos[1];
         this.whole_ob.rotation.y = this.initPos[2];
+        // this.bucket.setRotationFromQuaternion(new T.Quaternion(0.9659,0,0,0.2588))
     }
   }
 
@@ -1349,6 +1413,7 @@ let carouselObCtr = 0;
  * @property {number} [z=0]
  * @property {number} [size=1]
  */
+// @ts-ignore
 export class GrCarousel extends GrObject {
   /**
    * @param {CarouselProperties} params
@@ -1543,6 +1608,8 @@ let swingObCtr = 0;
  * @property {number} [y=0]
  * @property {number} [z=0]
  * @property {number} [size=1]
+ * @property {number} [speed=1]
+ * @property {number} [arcSize=1]
  */
 export class GrAdvancedSwing extends GrObject {
   /**
@@ -1583,6 +1650,8 @@ export class GrAdvancedSwing extends GrObject {
     this.whole_ob = swing;
     this.hanger = hanger;
     this.seat = seat_group;
+    this.speed = params.speed || 1;
+    this.arcSize = params.arcSize || 1;
 
     // put the object in its place
     this.whole_ob.position.x = params.x ? Number(params.x) : 0;
@@ -1652,9 +1721,9 @@ export class GrAdvancedSwing extends GrObject {
     // in this animation, use the sine of the accumulated angle to set current rotation.
     // This means the swing moves faster as it reaches the bottom of a swing,
     // and faster at either end of the swing, like a pendulum should.
-    this.swing_angle += 0.005 * delta;
-    this.hanger.rotation.z = (Math.sin(this.swing_angle) * Math.PI) / 4;
-    this.seat.rotation.z = (Math.sin(this.swing_angle) * Math.PI) / 16;
+    this.swing_angle += 0.005 * delta * this.speed;
+    this.hanger.rotation.z = this.arcSize * (Math.sin(this.swing_angle) * Math.PI) / 4;
+    this.seat.rotation.z = this.arcSize * (Math.sin(this.swing_angle) * Math.PI) / 16;
   }
 
 }

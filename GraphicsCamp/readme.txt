@@ -28,7 +28,8 @@ Object loaded from a model file:
 Model: PortaPotty
 
 An object with custom shader:
-ShaderObj: Mound0 and Mound1 have a displacement map based on perlin noise in the vertex shader and has a base color applied with diffusive lighting (as would seem apropriate for dirt).
+ShaderObj: Mound0 and Mound1 have a displacement map based on perlin noise in the vertex shader and has a base color applied with diffusive 
+           lighting (as would seem apropriate for dirt).
  
 
 Different Behaviors:
@@ -42,7 +43,10 @@ Different Behaviors:
     If they bump into an edge, they reflect off of it at the angle of incidence
 
 Please note that the behavior of the dump truck and skid loader can get wonky if the tab is not loaded while the animation is running, 
-however I have run it with the tab open for extended periods of time without issue.
+however I have run it with the tab open for extended periods of time without issue. Additionally, due to the graphics engine using a number
+of simplifications for performance sake, there are times when vehicles may deviate slightly from their path (even a couple ms of incorrect
+travel or rotation build up). I have implemented certain "corrections" to ensure that they SHOULD not deviate of the dirt trail, but there
+may be intermittent "jitters", particularly while adjusting the speed during execution.
 
 
 Attributions:
