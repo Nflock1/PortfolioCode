@@ -1,4 +1,5 @@
-To run Graphics camp, simply run the html file "final-grtorwn.html" with a local server. The LiveServer extension on VSCode works well.
+To run Graphics camp, host the html file "main/final-grtorwn.html" with a local server and navigate to it in browser. 
+The LiveServer extension on VSCode works well.
 
 Description:
 
