@@ -131,11 +131,3 @@ TODO: should this delete the old entry or leave it for sake of backwards compati
 
 8. delete all fields with a specific name (foo) and a specific value (bar) and replace them with a new field (foo2) and new value (bar2)
 
-##TODO: using $[] is currently required, but it doesnt need to be if the code is updated. MongoDB queries of this nature can be done with <Array>.<fieldname>
-## Just to be clear of all confusiong: you DO have to use $[] to specify all values in an array when using this script.
-- when specifying updated values $[] indicates that this value should be updated for all elements of an array
-- you CANNOT change the values of all old fieldnames in an array.
-    ie) oldName : "ArrayName.$[].fieldName", newValue : "someValue"
-    will NOT set all ArrayName.fieldNames to "someValue"
-- this code has not been extended to create new fields. If one were to add an 
-    "else" execution path for when there is no oldName, this could easily be accomplished (but I do not have the need for it RN)
