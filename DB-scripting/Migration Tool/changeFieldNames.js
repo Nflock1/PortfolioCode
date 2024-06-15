@@ -9,7 +9,6 @@ async function main() {
 	let modelName = await rl.question("what collection/model to change?\n");
 	const model = new mongoose.Schema({}, { strict: false });
 	let changeModel = DB.model(modelName, model);
-	//let fileBool = await rl.question("Read from JSON file or use stdIn? (y/n) \n");
 	if (true) {
 		fs.readFile("./fieldChange.json", async (err, json) => {
 			//obj is an array of objects that specify which fields need updating of names and/or values
@@ -335,12 +334,8 @@ async function main() {
 	}
 }
 
-//TODO: allow better user configuration of DB connection 
-let connURL =
-	"mongodb+srv://appuser:wMenLn6g6yanHpuv@cluster0.cvnqi5i.mongodb.net/IRAF-Trading-Test?retryWrites=true&w=majority";
-//let connURL = `mongodb+srv://sysTrader:7O16GdxUrRWCTU5a@cluster01.9yvei.mongodb.net/IRAF-Trading-Dev?retryWrites=true&w=majority`;
 const DB = mongoose
-	.createConnection(connURL, {
+	.createConnection(config.connectionURL, {
 		useNewUrlParser: true,
 		useUnifiedTopology: true,
 		autoIndex: true,
