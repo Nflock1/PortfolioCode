@@ -1,4 +1,4 @@
-fieldChange.json is used as follows:
+main.json is used as follows:
 
 - updates and query array can be any length
 
@@ -12,6 +12,8 @@ UPDATE RULES:
 - falsy newName values will cause the name of a field to remain the same
 - falsy newValue values will cause the field's value to remain the same 
 
+WARNING: user is responsible for managing their own types. If you put "90" in the conifg
+        instead of 90, a string will overwrite the old int into the DB
 
 Prescribed use Cases:
 

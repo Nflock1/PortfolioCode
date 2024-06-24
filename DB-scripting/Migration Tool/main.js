@@ -1,41 +1,39 @@
-import mongoose from "mongoose";
-import * as readline from "node:readline/promises";
-import fs from "fs";
+const mongoose = require("mongoose");
+const config = require("./migrationConfig.js")
 async function main() {
-	let rl = readline.createInterface({
-		input: process.stdin,
-		output: process.stdout,
-	});
-	let modelName = await rl.question("what collection/model to change?\n");
-	const model = new mongoose.Schema({}, { strict: false });
-	let changeModel = DB.model(modelName, model);
+	const schema = new mongoose.Schema({_id: {
+			type: mongoose.Schema.Types.Mixed,
+			required: true,
+			default: () => new mongoose.Types.ObjectId() // Example default if needed
+		}},
+		{ strict: false }
+	);
+	const changeModel = DB.model(config.collection, schema, config.collection);
 	if (true) {
-		fs.readFile("./fieldChange.json", async (err, json) => {
-			//obj is an array of objects that specify which fields need updating of names and/or values
-			let obj = JSON.parse(json);
-			let jUpdates = obj.updates;
-			let jQuery = obj.query;
+			let jUpdates = config.updates;
+			let jQuery = config.query;
 			let query = {};
 			for (let j = 0; j < jQuery.length; j++) {
 				if (jQuery[j].key === "*") {
 					break;
 				} else if (jQuery[j].key) {
 					if (jQuery[j].value == "undefined") {
-						console.log("RAN");
 						query[jQuery[j].key] = undefined;
 					} else {
-						console.log("RUJN");
 						query[jQuery[j].key] = jQuery[j].value;
 					}
 				}
 			}
-			console.log("query");
-			console.log(query);
 			let badName =
-				"THIS SHULD NEVVVVER BE A DB FEILD NAME EVER NEVER EVER 4EVER UNTILL NEEEVER FOREVER";
+				"THIS SHULD NEVVVVER BE A DB FEILD NAME EVER NEVER EVER 4EVER UNTILL NEEEVER FOREVER";			
 			let docs = await changeModel.find(query);
+			console.log(docs)
+			if(docs.length == 0) {
+				console.log("NO DOCUMENTS MATCHED QUERY")
+			}
 			for (let j = 0; j < docs.length; j++) {
 				query = { _id: docs[j]._id };
+				console.log(query);
 				for (let i = 0; i < jUpdates.length; i++) {
 					let update = {};
 					let arrayRun = false;
@@ -58,6 +56,7 @@ async function main() {
 						}
 					}
 					let count = oldExist + newVExist + oldVExist + newExist;
+					// console.log(count)
 					if (count !== 0) {
 						let old = jUpdates[i].oldName;
 						if (jUpdates[i].oldName.includes("[]")) {
@@ -73,7 +72,6 @@ async function main() {
 					switch (count) {
 						//this case has been tested
 						case 1:
-							console.log("UHHHHH");
 							//delete all fields with fieldname = $oldField
 							query = { _id: docs[j]._id };
 							//delete oldval
@@ -330,15 +328,18 @@ async function main() {
 				);
 			}
 			console.log("==================\n==== ALL DONE ====\n==================");
-		});
+			mongoose.disconnect()
+		// });
 	}
 }
-
+let clusterConnParts = config.clusterURL.split("?");
+let connectionString = `${clusterConnParts[0]}/${config.databaseName}?${clusterConnParts[1]}`;
+console.log(connectionString);
 const DB = mongoose
-	.createConnection(config.connectionURL, {
-		useNewUrlParser: true,
-		useUnifiedTopology: true,
-		autoIndex: true,
+	.createConnection(connectionString, {
+		// useNewUrlParser: true,
+    // useUnifiedTopology: true,
+    autoIndex: true,
 	})
 	.on("connected", async () => {
 		console.log("connected");
