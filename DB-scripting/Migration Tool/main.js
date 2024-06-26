@@ -337,8 +337,7 @@ let connectionString = `${clusterConnParts[0]}/${config.databaseName}?${clusterC
 console.log(connectionString);
 const DB = mongoose
 	.createConnection(connectionString, {
-		// useNewUrlParser: true,
-    // useUnifiedTopology: true,
+
     autoIndex: true,
 	})
 	.on("connected", async () => {
